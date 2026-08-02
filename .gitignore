@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+.ipynb_checkpoints/
+.DS_Store
+
+# Raw price data is fetched live at runtime (dashboard) or on-demand (pipeline) —
+# not committed, it goes stale immediately and adds repo noise.
+data/*.csv
+!data/.gitkeep
+
+# Model artifacts and metrics ARE committed: the scheduled GitHub Action
+# retrains daily and commits the refreshed model/metrics, so the commit
+# history itself is evidence the pipeline runs on a real schedule.
