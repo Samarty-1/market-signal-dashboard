@@ -1,6 +1,6 @@
 {
-  "trained_at_utc": "2026-08-10T22:04:34.991252+00:00",
-  "n_rows": 2250,
+  "trained_at_utc": "2026-08-11T22:09:59.754748+00:00",
+  "n_rows": 2255,
   "tickers": [
     "AAPL",
     "AMZN",
@@ -15,140 +15,140 @@
         {
           "fold": 0,
           "train_end": "2025-07-14",
-          "test_end": "2025-09-26",
+          "test_end": "2025-09-29",
           "n_train": 905,
-          "n_test": 265,
-          "accuracy": 0.4906,
-          "roc_auc": 0.4411,
-          "precision": 0.527,
-          "recall": 0.5455
+          "n_test": 270,
+          "accuracy": 0.4963,
+          "roc_auc": 0.4485,
+          "precision": 0.5329,
+          "recall": 0.5548
         },
         {
           "fold": 1,
-          "train_end": "2025-09-26",
-          "test_end": "2025-12-12",
-          "n_train": 1170,
+          "train_end": "2025-09-29",
+          "test_end": "2025-12-15",
+          "n_train": 1175,
           "n_test": 270,
-          "accuracy": 0.5222,
-          "roc_auc": 0.4726,
-          "precision": 0.5833,
-          "recall": 0.549
+          "accuracy": 0.5037,
+          "roc_auc": 0.4655,
+          "precision": 0.5674,
+          "recall": 0.5229
         },
         {
           "fold": 2,
-          "train_end": "2025-12-12",
-          "test_end": "2026-03-04",
-          "n_train": 1440,
+          "train_end": "2025-12-15",
+          "test_end": "2026-03-05",
+          "n_train": 1445,
           "n_test": 270,
           "accuracy": 0.4519,
-          "roc_auc": 0.4551,
-          "precision": 0.4588,
-          "recall": 0.5821
+          "roc_auc": 0.4521,
+          "precision": 0.4514,
+          "recall": 0.6031
         },
         {
           "fold": 3,
-          "train_end": "2026-03-04",
-          "test_end": "2026-05-20",
-          "n_train": 1710,
+          "train_end": "2026-03-05",
+          "test_end": "2026-05-21",
+          "n_train": 1715,
           "n_test": 270,
-          "accuracy": 0.4815,
-          "roc_auc": 0.4587,
-          "precision": 0.5211,
-          "recall": 0.5068
+          "accuracy": 0.463,
+          "roc_auc": 0.4613,
+          "precision": 0.5113,
+          "recall": 0.4595
         },
         {
           "fold": 4,
-          "train_end": "2026-05-20",
-          "test_end": "2026-08-07",
-          "n_train": 1980,
+          "train_end": "2026-05-21",
+          "test_end": "2026-08-10",
+          "n_train": 1985,
           "n_test": 270,
-          "accuracy": 0.4852,
-          "roc_auc": 0.4745,
-          "precision": 0.486,
-          "recall": 0.3824
+          "accuracy": 0.4926,
+          "roc_auc": 0.4687,
+          "precision": 0.4862,
+          "recall": 0.3955
         }
       ],
-      "mean_accuracy": 0.4863,
-      "mean_roc_auc": 0.4604,
-      "mean_precision": 0.5152,
-      "mean_recall": 0.5132
+      "mean_accuracy": 0.4815,
+      "mean_roc_auc": 0.4592,
+      "mean_precision": 0.5098,
+      "mean_recall": 0.5072
     },
     "random_forest": {
       "folds": [
         {
           "fold": 0,
           "train_end": "2025-07-14",
-          "test_end": "2025-09-26",
+          "test_end": "2025-09-29",
           "n_train": 905,
-          "n_test": 265,
-          "accuracy": 0.5472,
-          "roc_auc": 0.5467,
-          "precision": 0.5804,
-          "recall": 0.5804
+          "n_test": 270,
+          "accuracy": 0.5444,
+          "roc_auc": 0.5461,
+          "precision": 0.5793,
+          "recall": 0.5753
         },
         {
           "fold": 1,
-          "train_end": "2025-09-26",
-          "test_end": "2025-12-12",
-          "n_train": 1170,
+          "train_end": "2025-09-29",
+          "test_end": "2025-12-15",
+          "n_train": 1175,
           "n_test": 270,
-          "accuracy": 0.5222,
-          "roc_auc": 0.5119,
-          "precision": 0.5952,
-          "recall": 0.4902
+          "accuracy": 0.5185,
+          "roc_auc": 0.517,
+          "precision": 0.5935,
+          "recall": 0.4771
         },
         {
           "fold": 2,
-          "train_end": "2025-12-12",
-          "test_end": "2026-03-04",
-          "n_train": 1440,
+          "train_end": "2025-12-15",
+          "test_end": "2026-03-05",
+          "n_train": 1445,
           "n_test": 270,
-          "accuracy": 0.5148,
-          "roc_auc": 0.4714,
-          "precision": 0.5084,
-          "recall": 0.6791
+          "accuracy": 0.4704,
+          "roc_auc": 0.4678,
+          "precision": 0.4677,
+          "recall": 0.6641
         },
         {
           "fold": 3,
-          "train_end": "2026-03-04",
-          "test_end": "2026-05-20",
-          "n_train": 1710,
+          "train_end": "2026-03-05",
+          "test_end": "2026-05-21",
+          "n_train": 1715,
           "n_test": 270,
-          "accuracy": 0.4852,
-          "roc_auc": 0.4692,
-          "precision": 0.5252,
-          "recall": 0.5
+          "accuracy": 0.4815,
+          "roc_auc": 0.4451,
+          "precision": 0.5317,
+          "recall": 0.4527
         },
         {
           "fold": 4,
-          "train_end": "2026-05-20",
-          "test_end": "2026-08-07",
-          "n_train": 1980,
+          "train_end": "2026-05-21",
+          "test_end": "2026-08-10",
+          "n_train": 1985,
           "n_test": 270,
-          "accuracy": 0.4778,
-          "roc_auc": 0.4657,
-          "precision": 0.482,
-          "recall": 0.4926
+          "accuracy": 0.4815,
+          "roc_auc": 0.474,
+          "precision": 0.4779,
+          "recall": 0.4851
         }
       ],
-      "mean_accuracy": 0.5094,
-      "mean_roc_auc": 0.493,
-      "mean_precision": 0.5382,
-      "mean_recall": 0.5485
+      "mean_accuracy": 0.4993,
+      "mean_roc_auc": 0.49,
+      "mean_precision": 0.53,
+      "mean_recall": 0.5309
     }
   },
   "feature_importance": {
-    "return_1d": 0.1114,
-    "macd_hist": 0.1025,
-    "volume_change": 0.0839,
-    "sma_50_ratio": 0.0821,
-    "rsi_14": 0.081,
-    "volatility_10d": 0.0794,
-    "macd": 0.0789,
-    "volatility_20d": 0.0766,
-    "return_5d": 0.0734,
-    "sma_20_ratio": 0.0719,
-    "macd_signal": 0.0718,
-    "sma_10_ratio": 0.069
+    "return_1d": 0.1165,
+    "macd_hist": 0.1022,
+    "rsi_14": 0.0932,
+    "macd": 0.0863,
+    "volume_change": 0.08,
+    "macd_signal": 0.0746,
+    "volatility_20d": 0.0726,
+    "sma_50_ratio": 0.0725,
+    "sma_10_ratio": 0.072,
+    "sma_20_ratio": 0.0717,
+    "return_5d": 0.0713,
+    "volatility_10d": 0.0683
   }
 }
