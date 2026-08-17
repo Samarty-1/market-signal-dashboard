@@ -2,7 +2,10 @@ name: Retrain
 
 # Daily scheduled retrain: pull fresh price data, re-train the model with fresh
 # walk-forward validation, re-run the backtest, and commit the refreshed
-# artifacts back to the repo. Also runnable on demand from the Actions tab.
+# artifacts back to the repo. `python -m src.model` writes a new version into
+# the models/registry/ model registry (see src/registry.py) rather than
+# overwriting a single model file in place, so this history is rollback-able.
+# Also runnable on demand from the Actions tab.
 on:
   schedule:
     - cron: "30 21 * * 1-5" # 21:30 UTC, Mon-Fri — after US market close
@@ -33,10 +36,13 @@ jobs:
       - name: Run backtest
         run: python -m src.backtest
 
+      - name: Export frontend data bundle
+        run: python -m src.export_frontend_data
+
       - name: Commit updated artifacts if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add models/ reports/
+          git add models/ reports/ frontend/data/
           git diff --cached --quiet || git commit -m "Scheduled retrain: $(date -u +'%Y-%m-%d')"
           git push

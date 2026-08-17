@@ -8,9 +8,29 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
-DEFAULT_TICKERS = ["AAPL", "MSFT", "GOOGL", "AMZN", "SPY"]
+DEFAULT_TICKERS = [
+    # Mega-cap tech
+    "AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA",
+    # Semiconductors
+    "AMD", "AVGO",
+    # Financials
+    "JPM", "BAC", "GS",
+    # Healthcare
+    "JNJ", "UNH", "PFE",
+    # Consumer
+    "WMT", "PG", "KO", "MCD",
+    # Energy
+    "XOM", "CVX",
+    # Industrials
+    "CAT", "BA",
+    # Communications
+    "NFLX", "DIS",
+    # Broad ETFs
+    "SPY", "QQQ", "DIA", "IWM",
+]
 DEFAULT_PERIOD = "2y"
 DEFAULT_INTERVAL = "1d"
+VIX_TICKER = "^VIX"
 
 
 def fetch_prices(
@@ -47,6 +67,15 @@ def fetch_prices(
     combined = pd.concat(frames, ignore_index=True)
     combined["date"] = pd.to_datetime(combined["date"]).dt.tz_localize(None)
     return combined.sort_values(["ticker", "date"]).reset_index(drop=True)
+
+
+def fetch_vix(period: str = DEFAULT_PERIOD) -> pd.DataFrame:
+    """Fetch daily VIX closes — a macro regime signal, not a tradable ticker in the model.
+
+    Returns columns: date, vix_close.
+    """
+    vix = fetch_prices([VIX_TICKER], period=period)
+    return vix[["date", "close"]].rename(columns={"close": "vix_close"})
 
 
 def main() -> None:

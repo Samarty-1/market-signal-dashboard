@@ -5,7 +5,7 @@ model with walk-forward validation, backtests it honestly (out-of-sample only),
 and serves everything through an interactive dashboard — with a scheduled
 GitHub Action that retrains the model daily.
 
-**Live demo:** _add your Streamlit Community Cloud / Hugging Face Space link here after deploying_
+**Live demo:** _add your GitHub Pages / static hosting link here after deploying `frontend/`_
 
 ![Tests](https://github.com/Samarty-1/market-signal-dashboard/actions/workflows/tests.yml/badge.svg)
 ![Retrain](https://github.com/Samarty-1/market-signal-dashboard/actions/workflows/retrain.yml/badge.svg)
@@ -13,19 +13,21 @@ GitHub Action that retrains the model daily.
 ## What this project demonstrates
 
 Most portfolio ML projects stop at "trained a model, got a metric." This one
-chains the three pieces that actually make up a real system:
+chains the pieces that actually make up a real system:
 
-1. **Data ingestion** — live OHLCV pulls from Yahoo Finance (`src/data_ingestion.py`), not a static Kaggle CSV.
-2. **Model training with proper validation** — `src/model.py` compares Logistic Regression vs Random Forest using **walk-forward (expanding-window) validation**, splitting on calendar date so no ticker's future ever leaks into an earlier fold's training set.
-3. **An honest backtest** — `src/backtest.py` scores the strategy using *only* each fold's out-of-sample predictions, never the final full-data-fit model on its own training history (a common and easy-to-miss backtest overfitting trap).
-4. **An interactive dashboard** — `app.py` (Streamlit) visualizes all of the above, plus one genuinely live piece: a same-day model score computed from data fetched at page-load time.
-5. **A scheduled retrain** — `.github/workflows/retrain.yml` runs the whole pipeline on a cron schedule and commits the refreshed model/metrics back to the repo, so the commit history itself is evidence this runs on a real cadence, not just once locally.
+1. **Data ingestion** — live OHLCV pulls from Yahoo Finance (`src/data_ingestion.py`) across a ~30-ticker universe spanning tech, semis, financials, healthcare, consumer, energy, industrials, comms, and broad ETFs, not a static Kaggle CSV or a handful of mega-caps.
+2. **Model training with proper validation** — `src/model.py` compares Logistic Regression, Random Forest, LightGBM, and XGBoost using **walk-forward (expanding-window) validation**, splitting on calendar date so no ticker's future ever leaks into an earlier fold's training set.
+3. **An honest, cost-aware backtest** — `src/backtest.py` scores the strategy using *only* each fold's out-of-sample predictions (never the final full-data-fit model on its own training history — a common and easy-to-miss overfitting trap), with configurable position sizing (binary or confidence-scaled), per-trade transaction costs, and an optional VIX regime filter that only trades a regime once it's shown positive historical edge.
+4. **An interactive dashboard** — a static, Nocturne-styled front end in `frontend/` (plain HTML/CSS/JS, no build step, no framework server) visualizes all of the above: a ticker compare overlay, candlestick charts, a real confusion matrix/ROC curve computed from the out-of-sample predictions, CSV export, and a live-as-of-last-export price/probability reading per ticker.
+5. **A model registry** — `src/registry.py` versions every trained model under `models/registry/<timestamp>/` with a `registry.json` pointer/history (instead of overwriting one file in place), so there's a rollback-able audit trail; old artifacts beyond the most recent 30 versions are pruned to keep the repo bounded while their metadata stays in history.
+6. **A scheduled retrain** — `.github/workflows/retrain.yml` runs the whole pipeline on a cron schedule — ingestion → model → registry → backtest → frontend data export — and commits the refreshed artifacts back to the repo, so the commit history itself is evidence this runs on a real cadence, not just once locally.
 
 ## Honest results (read this before the dashboard)
 
 Predicting tomorrow's stock direction from today's technical indicators is
-close to a coin flip — the walk-forward ROC AUC here sits right around **0.48**,
-i.e. no better than random. **This is expected, not a failure of the code.**
+close to a coin flip — the walk-forward ROC AUC here sits right around **0.50**
+across all four candidate models (Logistic Regression, Random Forest, LightGBM,
+XGBoost), i.e. no better than random. **This is expected, not a failure of the code.**
 Daily price direction is close to the textbook definition of weak-form market
 efficiency: if a signal this simple reliably beat the market, it would already
 be arbitraged away. The backtest reflects that honestly too — the strategy
@@ -51,39 +53,63 @@ retraining. That combination is the part worth demonstrating.
                                    ▼
                     ┌─────────────────────────────┐
                     │  src/model.py                │  walk-forward validation,
-                    │                              │  Logistic Regression vs
-                    │                              │  Random Forest, saves the
-                    │                              │  better one
+                    │                              │  Logistic Regression /
+                    │                              │  Random Forest / LightGBM /
+                    │                              │  XGBoost, saves the best one
                     └──────────────┬───────────────┘
                                    ▼
                     ┌─────────────────────────────┐
-                    │  src/backtest.py             │  out-of-sample strategy
-                    │                              │  vs buy-and-hold
+                    │  src/registry.py             │  versions the model under
+                    │                              │  models/registry/<ts>/,
+                    │                              │  prunes old artifacts
                     └──────────────┬───────────────┘
                                    ▼
                     ┌─────────────────────────────┐
-                    │  app.py (Streamlit)          │  reads the artifacts above
-                    │                              │  + one live inference call
+                    │  src/backtest.py             │  out-of-sample strategy vs
+                    │                              │  buy-and-hold, with position
+                    │                              │  sizing, transaction costs,
+                    │                              │  and a VIX regime filter
+                    └──────────────┬───────────────┘
+                                   ▼
+                    ┌─────────────────────────────┐
+                    │  src/export_frontend_data.py │  bundles real OHLCV+signal
+                    │                              │  rows, model metrics, and a
+                    │                              │  live snapshot per ticker
+                    │                              │  into frontend/data/*.json
+                    └──────────────┬───────────────┘
+                                   ▼
+                    ┌─────────────────────────────┐
+                    │  frontend/ (static site)     │  fetch()es the JSON above —
+                    │                              │  plain HTML/CSS/JS, no
+                    │                              │  backend server required
                     └─────────────────────────────┘
 
-.github/workflows/retrain.yml runs the ingestion → model → backtest chain on a
-daily cron schedule and commits models/ + reports/ back to the repo.
+.github/workflows/retrain.yml runs the ingestion → model → registry → backtest
+→ export chain on a daily cron schedule and commits models/registry/,
+reports/, and frontend/data/ back to the repo.
 ```
 
 ## Project structure
 
 ```
 market-signal-dashboard/
-├── app.py                        # Streamlit dashboard (entry point)
 ├── src/
-│   ├── data_ingestion.py         # yfinance OHLCV puller, CLI-runnable
+│   ├── data_ingestion.py         # yfinance OHLCV + VIX puller, CLI-runnable
 │   ├── features.py               # technical indicators + labeling
 │   ├── model.py                  # walk-forward validation + model selection
-│   └── backtest.py               # out-of-sample strategy vs buy-and-hold
+│   ├── registry.py               # versioned model registry (save/load/prune)
+│   ├── backtest.py               # out-of-sample strategy vs buy-and-hold
+│   └── export_frontend_data.py   # bundles real data for frontend/ (CLI-runnable)
 ├── tests/
 │   ├── test_features.py          # label correctness, no-lookahead checks
-│   └── test_backtest.py          # performance-metric math, signal logic
-├── models/                       # committed: model.joblib, metrics.json
+│   ├── test_backtest.py          # performance-metric math, sizing/cost/regime logic
+│   └── test_registry.py          # registry save/load/prune round-trips
+├── frontend/                     # static dashboard (Nocturne design system) — no backend
+│   ├── index.html                # the dashboard itself; fetch()es data/dashboard_data.json
+│   ├── support.js                # the template runtime the comp was built with (self-contained)
+│   ├── _ds/…/styles.css          # Nocturne design tokens + component CSS
+│   └── data/dashboard_data.json  # committed: written by src/export_frontend_data.py
+├── models/registry/              # committed: <timestamp>/{model.joblib,metrics.json} + registry.json pointer
 ├── reports/                      # committed: backtest_metrics.json, predictions.csv
 ├── data/                         # gitignored: raw prices are fetched fresh, not cached
 ├── .github/workflows/
@@ -107,15 +133,20 @@ pip install -r requirements.txt
 Run the full pipeline (fetches live data — needs internet):
 
 ```bash
-python -m src.model      # trains + walk-forward validates, saves models/
-python -m src.backtest   # backtests the chosen model, saves reports/
+python -m src.model                  # trains + walk-forward validates, saves a new models/registry/<version>/
+python -m src.backtest               # backtests the chosen model, saves reports/
+python -m src.export_frontend_data   # bundles real data (+ one live snapshot per ticker) into frontend/data/
 ```
 
-Launch the dashboard:
+Launch the dashboard — it's a static site, so any HTTP server works (it must be served over HTTP, not opened as a `file://` path, since it loads its data with `fetch()`):
 
 ```bash
-streamlit run app.py
+cd frontend
+python -m http.server 8000
+# then open http://localhost:8000
 ```
+
+Use the sidebar's **Refresh data** button to re-fetch `dashboard_data.json` after re-running the export step, without reloading the page.
 
 Run the tests (no network required — synthetic data):
 
@@ -125,28 +156,54 @@ pytest -v
 
 ## Configuration
 
-Tickers default to `AAPL, MSFT, GOOGL, AMZN, SPY`. Override on any pipeline command:
+Tickers default to a ~30-name universe across sectors (see `src/data_ingestion.py`).
+Override on any pipeline command:
 
 ```bash
 python -m src.model --tickers TSLA,NVDA,SPY --period 3y
 python -m src.backtest --tickers TSLA,NVDA,SPY --threshold 0.55
 ```
 
+`src/backtest.py` also accepts:
+
+```bash
+python -m src.backtest \
+  --position-sizing confidence \  # "binary" (default) or "confidence" (scales with P(up) - threshold)
+  --cost-bps 5 \                  # per-unit-of-turnover transaction cost, in basis points (default 0)
+  --regime-filter                 # only trade when the current VIX tercile has shown positive prior-fold edge
+```
+
+The dashboard's Backtest tab recomputes a binary long/flat equity curve
+client-side from the exported out-of-sample predictions as you move the
+threshold slider — the position-sizing/cost/regime-filter options above are
+CLI/backtest-report-level controls for now (porting all three into the
+static frontend's JS would be the next step if that interactivity is wanted
+client-side too).
+
 ## Scheduled retraining
 
 `.github/workflows/retrain.yml` runs weekdays at 21:30 UTC (after the US
 market closes), re-pulls data, re-runs walk-forward validation, re-backtests,
-and commits `models/` and `reports/` back to the repo if anything changed.
+re-exports `frontend/data/dashboard_data.json`, and commits `models/`,
+`reports/`, and `frontend/data/` back to the repo if anything changed.
 Trigger it manually from the **Actions** tab (`workflow_dispatch`) to see it
 run immediately rather than waiting for the schedule.
 
+## Deploying the frontend
+
+`frontend/` is a self-contained static site (HTML/CSS/JS, one JSON data file)
+— any static host works. For GitHub Pages: Settings → Pages → deploy from
+branch, folder `/frontend`. The scheduled retrain keeps
+`frontend/data/dashboard_data.json` fresh in the same repo, so once Pages is
+pointed at this folder no further wiring is needed.
+
 ## Possible next steps
 
-- Add more tickers / an actual sector or index universe instead of five mega-caps
-- Try gradient-boosted trees (LightGBM/XGBoost) or a simple LSTM as additional candidates
-- Add position sizing and transaction costs to the backtest (currently binary long/flat, zero costs)
-- Add a regime filter (e.g. VIX level) so the model only trades when its historical edge held
-- Swap the scheduled-commit pattern for a proper model registry if this ever needed to scale past one repo
+- Add a simple LSTM as a further candidate — needs a separate sequence-windowing data path from the current flat-feature pipeline, plus a DL framework dependency; a bigger lift than the tree-based candidates above.
+- Wire up an external model registry (e.g. MLflow) if this ever needed to scale past one repo — the current `src/registry.py` is a lightweight in-repo version, deliberately scoped to avoid provisioning external infrastructure for a single-repo educational project.
+- Portfolio-level (not just per-ticker) position sizing that accounts for cross-ticker correlation.
+- Port position sizing / transaction costs / the VIX regime filter into the frontend's client-side backtest JS, so those controls are explorable in the dashboard itself instead of only via the `src/backtest.py` CLI flags.
+- A true live feed would need a small backend (or a scheduled function) serving fresh inference on request — the current frontend is deliberately backend-free, so "live" means "as of the last export," refreshable on demand but not push-updated.
 
 ## Disclaimer
 

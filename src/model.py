@@ -13,16 +13,18 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import joblib
 import numpy as np
 import pandas as pd
+from lightgbm import LGBMClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
+from xgboost import XGBClassifier
 
+from src import registry
 from src.data_ingestion import fetch_prices
 from src.features import FEATURE_COLUMNS, build_feature_dataset
 
@@ -33,6 +35,12 @@ CANDIDATE_MODELS = {
     "logistic_regression": LogisticRegression(max_iter=1000, class_weight="balanced"),
     "random_forest": RandomForestClassifier(
         n_estimators=300, max_depth=6, min_samples_leaf=20, random_state=42, class_weight="balanced"
+    ),
+    "lightgbm": LGBMClassifier(
+        n_estimators=300, max_depth=6, learning_rate=0.05, class_weight="balanced", random_state=42, verbose=-1
+    ),
+    "xgboost": XGBClassifier(
+        n_estimators=300, max_depth=4, learning_rate=0.05, eval_metric="logloss", random_state=42
     ),
 }
 
@@ -73,14 +81,19 @@ def walk_forward_predictions(df: pd.DataFrame, estimator_name: str) -> pd.DataFr
         pipeline.fit(train[FEATURE_COLUMNS + ["ticker"]], train[LABEL_COLUMN])
         proba = pipeline.predict_proba(test[FEATURE_COLUMNS + ["ticker"]])[:, 1]
 
-        fold_predictions = test[["date", "ticker", "close", "return_1d", "next_day_return", LABEL_COLUMN]].copy()
+        fold_predictions = test[
+            ["date", "ticker", "open", "high", "low", "close", "volume", "return_1d", "next_day_return", LABEL_COLUMN]
+        ].copy()
         fold_predictions["fold"] = fold_idx
         fold_predictions["proba_up"] = proba
         predictions.append(fold_predictions)
 
     if not predictions:
         return pd.DataFrame(
-            columns=["date", "ticker", "close", "return_1d", "next_day_return", LABEL_COLUMN, "fold", "proba_up"]
+            columns=[
+                "date", "ticker", "open", "high", "low", "close", "volume", "return_1d",
+                "next_day_return", LABEL_COLUMN, "fold", "proba_up",
+            ]
         )
     return pd.concat(predictions, ignore_index=True).sort_values(["ticker", "date"]).reset_index(drop=True)
 
@@ -152,9 +165,15 @@ def train_and_select_best(df: pd.DataFrame) -> tuple[str, Pipeline, dict]:
 
 def feature_importance(best_name: str, pipeline: Pipeline) -> dict:
     """Extracts a feature -> importance/coefficient mapping for the numeric features
-    (ticker one-hot columns are excluded since they aren't comparable 1:1 with features)."""
+    (ticker one-hot columns are excluded since they aren't comparable 1:1 with features).
+
+    Tree/boosting models (random_forest, lightgbm, xgboost) expose feature_importances_;
+    linear models (logistic_regression) expose coef_ instead. Branch on the attribute
+    itself rather than the model name so a new tree-based candidate doesn't silently
+    fall into the wrong branch.
+    """
     model = pipeline.named_steps["model"]
-    if best_name == "random_forest":
+    if hasattr(model, "feature_importances_"):
         importances = model.feature_importances_[: len(FEATURE_COLUMNS)]
     else:
         importances = np.abs(model.coef_[0][: len(FEATURE_COLUMNS)])
@@ -165,8 +184,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tickers", default=None, help="Comma-separated tickers (default: data_ingestion defaults)")
     parser.add_argument("--period", default="2y")
-    parser.add_argument("--model-out", default="models/model.joblib")
-    parser.add_argument("--metrics-out", default="models/metrics.json")
+    parser.add_argument("--models-dir", default="models", help="Root directory for the model registry")
     parser.add_argument("--data-out", default="data/prices.csv")
     args = parser.parse_args()
 
@@ -179,12 +197,10 @@ def main() -> None:
     best_name, pipeline, metrics = train_and_select_best(df)
     metrics["feature_importance"] = feature_importance(best_name, pipeline)
 
-    Path(args.model_out).parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(pipeline, args.model_out)
-    Path(args.metrics_out).write_text(json.dumps(metrics, indent=2))
+    version = registry.save_version(pipeline, metrics, Path(args.models_dir))
 
     print(f"Best model: {best_name} (mean ROC AUC {metrics['comparison'][best_name]['mean_roc_auc']})")
-    print(f"Saved model to {args.model_out}, metrics to {args.metrics_out}")
+    print(f"Saved registry version {version} under {args.models_dir}/registry/")
 
 
 if __name__ == "__main__":

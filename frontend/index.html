@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/nocturne-659ab665-7670-4aa0-9947-5eaef68b76cc/styles.css">
+  <script src="_ds/nocturne-659ab665-7670-4aa0-9947-5eaef68b76cc/_ds_bundle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+  <style>
+    body{margin:0;overflow-x:hidden}
+    input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer}
+    input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--color-divider);border-radius:2px}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--color-accent);margin-top:-5px;box-shadow:0 0 0 3px var(--color-bg)}
+    input[type=range]::-moz-range-track{height:4px;background:var(--color-divider);border-radius:2px}
+    input[type=range]::-moz-range-thumb{width:14px;height:14px;border:none;border-radius:50%;background:var(--color-accent)}
+    @keyframes flashUp{0%{background:color-mix(in srgb, var(--color-accent) 30%, transparent)}100%{background:transparent}}
+    @keyframes flashDown{0%{background:color-mix(in srgb, var(--color-neutral-500) 30%, transparent)}100%{background:transparent}}
+    @keyframes slideIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes pulseDot{0%,100%{opacity:1}50%{opacity:0.35}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    ::-webkit-scrollbar{width:8px;height:8px}
+    ::-webkit-scrollbar-thumb{background:var(--color-divider);border-radius:4px}
+  </style>
+</helmet>
+
+<div style="{{ rootStyle }}">
+<div style="background:var(--color-bg);color:var(--color-text);min-height:100vh;font-family:var(--font-body);display:flex;transition:background 200ms ease,color 200ms ease">
+
+  <sc-if value="{{ !ready }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:100vh;gap:14px;padding:24px;text-align:center">
+      <i class="{{ statusIcon }}" style="{{ statusIconStyle }}"></i>
+      <div style="font-family:var(--font-heading);font-size:15px;max-width:440px;line-height:1.5">{{ statusMessage }}</div>
+      <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+        <button class="btn btn-primary" onClick="{{ retryLoad }}"><i class="ph ph-arrow-clockwise"></i>&nbsp;Retry</button>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
+
+  <!-- SIDEBAR -->
+  <div style="width:{{ sidebarWidth }};flex:none;border-right:1px solid var(--color-divider);padding:var(--space-4) var(--space-3);display:flex;flex-direction:column;gap:var(--space-4);position:sticky;top:0;height:100vh;overflow-y:auto;transition:width 180ms ease">
+    <button onClick="{{ toggleSidebar }}" class="btn btn-icon btn-secondary" style="align-self:flex-end">
+      <i class="{{ sidebarIcon }}" style="font-size:16px"></i>
+    </button>
+
+    <sc-if value="{{ !sidebarCollapsed }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+
+        <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-heading);font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-accent)">
+          <i class="ph ph-sliders-horizontal"></i> Controls
+        </div>
+
+        <div class="field" style="position:relative">
+          <label>Ticker</label>
+          <button onClick="{{ toggleTickerOpen }}" class="input" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left">
+            <span style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:var(--font-heading);font-weight:600">{{ ticker }}</span>
+              <span style="font-size:12px;color:{{ liveDeltaColor }}">{{ liveDeltaLabel }}</span>
+            </span>
+            <i class="{{ tickerCaretIcon }}" style="opacity:0.6"></i>
+          </button>
+          <sc-if value="{{ tickerOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-lg" style="position:absolute;top:64px;left:0;right:0;z-index:30;padding:var(--space-2);gap:6px">
+              <input class="input" placeholder="Search ticker…" value="{{ tickerSearch }}" onChange="{{ onTickerSearchChange }}" autoFocus="{{ true }}" style="margin-bottom:4px">
+              <div style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:2px">
+                <sc-for list="{{ tickerRows }}" as="tr0" hint-placeholder-count="5">
+                  <div onClick="{{ tr0.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px;border-radius:var(--radius-sm);cursor:pointer;background:{{ tr0.rowBg }}">
+                    <span style="font-family:var(--font-heading);font-weight:600;width:52px">{{ tr0.ticker }}</span>
+                    <svg width="60" height="22" viewBox="0 0 60 22"><path d="{{ tr0.sparkD }}" fill="none" stroke="{{ tr0.color }}" stroke-width="1.5"></path></svg>
+                    <span style="font-size:12px;width:64px;text-align:right">{{ tr0.priceLabel }}</span>
+                    <span style="font-size:12px;width:56px;text-align:right;color:{{ tr0.color }}">{{ tr0.deltaLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div class="field">
+          <label>Compare against</label>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <sc-for list="{{ compareOptions }}" as="c" hint-placeholder-count="4">
+              <div class="{{ c.tagClass }}" onClick="{{ c.onClick }}" style="cursor:pointer;user-select:none">{{ c.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Signal threshold — P(up) to go long</label>
+          <div style="position:relative;height:40px;margin-top:14px">
+            <div style="position:absolute;top:16px;left:0;right:0;height:6px;background:var(--color-divider);border-radius:3px"></div>
+            <div style="position:absolute;top:16px;left:0;height:6px;width:{{ thresholdPct }}%;background:var(--color-accent);border-radius:3px"></div>
+            <div style="position:absolute;top:0;left:calc({{ thresholdPct }}% - 15px);width:30px;height:30px;border-radius:50%;background:var(--color-bg);border:2px solid var(--color-accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--font-heading);color:var(--color-accent);box-shadow:var(--shadow-sm);pointer-events:none">{{ thresholdLabel }}</div>
+            <input type="range" min="0.3" max="0.7" step="0.01" value="{{ threshold }}" onChange="{{ onThresholdChange }}" style="position:absolute;top:0;left:0;width:100%;height:30px;opacity:0;cursor:pointer;margin:0">
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;opacity:0.5;margin-top:2px"><span>30%</span><span>50%</span><span>70%</span></div>
+        </div>
+
+        <div class="field">
+          <label>Alert threshold</label>
+          <div style="position:relative;height:40px;margin-top:14px">
+            <div style="position:absolute;top:16px;left:0;right:0;height:6px;background:var(--color-divider);border-radius:3px"></div>
+            <div style="position:absolute;top:16px;left:0;height:6px;width:{{ alertPct }}%;background:var(--color-accent-2-500);border-radius:3px"></div>
+            <div style="position:absolute;top:0;left:calc({{ alertPct }}% - 15px);width:30px;height:30px;border-radius:50%;background:var(--color-bg);border:2px solid var(--color-accent-2-500);display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--font-heading);color:var(--color-accent-2-500);box-shadow:var(--shadow-sm);pointer-events:none"><i class="ph ph-bell-simple-ringing" style="font-size:12px"></i></div>
+            <input type="range" min="0.3" max="0.9" step="0.01" value="{{ alertThreshold }}" onChange="{{ onAlertThresholdChange }}" style="position:absolute;top:0;left:0;width:100%;height:30px;opacity:0;cursor:pointer;margin:0">
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;opacity:0.5;margin-top:2px"><span>30%</span><span>{{ alertThresholdLabel }}</span><span>90%</span></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+          <label class="radio" style="justify-content:space-between">
+            <span>Show threshold alerts</span>
+            <input type="checkbox" checked="{{ alertsEnabled }}" onChange="{{ toggleAlerts }}">
+            <span class="dot" style="border-radius:4px"></span>
+          </label>
+        </div>
+        <button class="btn btn-secondary btn-block" onClick="{{ refreshData }}"><i class="ph ph-arrow-clockwise"></i>&nbsp;Refresh data</button>
+
+        <div class="hr"></div>
+
+        <div style="font-size:12px;color:var(--color-text);opacity:0.7;display:flex;flex-direction:column;gap:4px">
+          <div><b style="color:var(--color-text);opacity:1">Model:</b> {{ bestModelLabel }}</div>
+          <div><b style="color:var(--color-text);opacity:1">Last trained:</b> {{ trainedAt }} UTC</div>
+          <div><b style="color:var(--color-text);opacity:1">Training rows:</b> {{ trainingRows }}</div>
+          <div><b style="color:var(--color-text);opacity:1">Registry version:</b> {{ registryVersion }}</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn btn-secondary btn-block" onClick="{{ exportCSV }}"><i class="ph ph-file-csv"></i>&nbsp;Export CSV</button>
+        </div>
+
+        <div style="font-size:10px;color:var(--color-text);opacity:0.45;line-height:1.5">
+          Real pipeline output — live ingestion → walk-forward validated model → honest backtest. Data as of {{ generatedAtLabel }} (regenerated by the scheduled retrain, or on demand via "Refresh data").
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- MAIN -->
+  <div style="flex:1;min-width:0;padding:var(--space-6) var(--space-8);display:flex;flex-direction:column;gap:var(--space-6)">
+
+    <!-- HEADER -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-4);flex-wrap:wrap">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="ph-fill ph-chart-line-up" style="font-size:34px;color:var(--color-accent)"></i>
+          <h1 style="margin:0">Market Signal Dashboard</h1>
+        </div>
+        <p class="text-muted" style="margin-top:6px;max-width:640px">Live data ingestion → next-day-direction model → backtest, all in one pipeline. Educational portfolio project — not investment advice.</p>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:8px 14px;{{ tickerFlashStyle }}">
+          <i class="ph ph-circle-fill" style="font-size:8px;color:var(--color-accent);animation:pulseDot 1.6s ease-in-out infinite"></i>
+          <span style="font-family:var(--font-heading);font-weight:600">{{ ticker }}</span>
+          <span style="font-family:var(--font-heading);font-size:16px">{{ livePriceLabel }}</span>
+          <span style="font-size:12px;color:{{ liveDeltaColor }}">{{ liveDeltaLabel }}</span>
+        </div>
+
+        <div style="position:relative">
+          <button class="btn btn-icon btn-secondary" onClick="{{ toggleNotif }}" style="position:relative">
+            <i class="ph ph-bell"></i>
+            <sc-if value="{{ hasAlerts }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;top:-4px;right:-4px;background:var(--color-accent);color:var(--color-bg);font-size:10px;font-family:var(--font-heading);font-weight:600;border-radius:999px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px">{{ alertCountLabel }}</span>
+            </sc-if>
+          </button>
+          <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-lg" style="position:absolute;right:0;top:44px;width:300px;max-height:340px;overflow-y:auto;z-index:20;gap:var(--space-3)">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="card-title" style="font-size:14px">Alerts</span>
+                <button class="btn btn-ghost" style="font-size:12px" onClick="{{ toggleNotif }}">Close</button>
+              </div>
+              <sc-if value="{{ hasAlerts }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="0">
+                    <div style="border-bottom:1px solid var(--color-divider);padding-bottom:8px;animation:slideIn 220ms ease-out">
+                      <div style="font-size:12px;display:flex;justify-content:space-between"><b>{{ a.ticker }}</b><span class="text-muted">{{ a.time }}</span></div>
+                      <div style="font-size:12px;opacity:0.85">{{ a.message }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ noAlerts }}" hint-placeholder-val="{{ true }}">
+                <div class="text-muted" style="font-size:13px">No tickers currently above your alert threshold.</div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+
+        <button class="btn btn-icon btn-secondary" onClick="{{ toggleTheme }}">
+          <i class="{{ themeIcon }}"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:var(--space-4)">
+      <div class="card elev-sm" style="flex-direction:row;align-items:center;justify-content:space-between">
+        <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+          <div class="card-kicker">P(next close up)</div>
+          <div class="card-title" style="font-size:28px;font-family:var(--font-heading)">{{ liveProbaLabel }}</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="{{ signalTagClass }}">{{ signalText }}</span>
+            <span class="card-meta">as of {{ liveAsOf }}</span>
+          </div>
+        </div>
+        <svg width="96" height="60" viewBox="0 0 120 70">
+          <path d="M 6 60 A 54 54 0 0 1 114 60" fill="none" stroke="var(--color-divider)" stroke-width="10" stroke-linecap="round"></path>
+          <path d="M 6 60 A 54 54 0 0 1 114 60" fill="none" stroke="var(--color-accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="{{ gaugeDash }}"></path>
+          <text x="60" y="55" text-anchor="middle" font-size="13" font-family="var(--font-heading)" fill="var(--color-text)">{{ liveProbaLabel }}</text>
+        </svg>
+      </div>
+      <div class="card elev-sm">
+        <div class="card-kicker">Strategy Sharpe</div>
+        <div class="card-title">{{ strategySharpeLabel }}</div>
+        <div class="card-meta">vs buy-hold {{ bhSharpeLabel }}</div>
+      </div>
+      <div class="card elev-sm">
+        <div class="card-kicker">Mean ROC AUC</div>
+        <div class="card-title">{{ meanRocAucLabel }}</div>
+        <div class="card-meta">walk-forward mean</div>
+      </div>
+      <div class="card elev-sm" style="flex-direction:row;align-items:center;justify-content:space-between">
+        <div>
+          <div class="card-kicker">Period P&amp;L — {{ ticker }}</div>
+          <div class="card-title" style="color:{{ rangeColor }}">{{ pnlLabel }}</div>
+          <div class="card-meta">{{ rangeStartDate }} → {{ rangeEndDate }}</div>
+        </div>
+        <div class="seg">
+          <sc-for list="{{ pnlUnitOptions }}" as="pu" hint-placeholder-count="2">
+            <label class="seg-opt" style="font-size:11px;padding:5px 8px"><input type="radio" checked="{{ pu.active }}" onChange="{{ pu.onClick }}"><span class="dot" style="display:none"></span>{{ pu.label }}</label>
+          </sc-for>
+        </div>
+      </div>
+      <div class="card elev-sm">
+        <div class="card-kicker">Win rate in range</div>
+        <div class="card-title" style="color:{{ winRateColor }}">{{ winRateLabel }}</div>
+        <div class="card-meta">{{ winRateSub }}</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:var(--space-6);border-bottom:1px solid var(--color-divider)">
+      <sc-for list="{{ tabs }}" as="tabItem" hint-placeholder-count="3">
+        <button onClick="{{ tabItem.onClick }}" style="background:none;border:none;cursor:pointer;padding:10px 2px;margin-bottom:-1px;border-bottom:2px solid {{ tabItem.borderColor }};color:{{ tabItem.color }};font-family:var(--font-heading);font-size:14px;display:flex;align-items:center;gap:6px">
+          <i class="{{ tabItem.icon }}"></i>{{ tabItem.label }}
+        </button>
+      </sc-for>
+    </div>
+
+    <!-- OVERVIEW TAB -->
+    <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+        <div class="card elev-sm" style="flex-direction:row;align-items:center;justify-content:space-between;background:{{ rangeBg }};border:1px solid {{ rangeBorder }}">
+          <div style="display:flex;align-items:center;gap:10px">
+            <i class="{{ rangeIcon }}" style="font-size:20px;color:{{ rangeColor }}"></i>
+            <div>
+              <div style="font-size:11px;opacity:0.65">{{ rangeStartDate }} → {{ rangeEndDate }} (drag on the chart to pick a range)</div>
+              <div style="font-family:var(--font-heading);font-size:15px">{{ rangeStartPrice }} → {{ rangeEndPrice }}</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--font-heading);font-size:20px;color:{{ rangeColor }}">{{ rangeDeltaPct }}</div>
+            <div style="font-size:12px;color:{{ rangeColor }}">{{ rangeDeltaAbs }}</div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3)">
+          <h3 style="margin:0">{{ ticker }} — price &amp; out-of-sample signal</h3>
+          <div style="display:flex;gap:var(--space-3);flex-wrap:wrap">
+            <div class="seg">
+              <sc-for list="{{ chartTypeOptions }}" as="ct" hint-placeholder-count="2">
+                <label class="seg-opt"><input type="radio" checked="{{ ct.active }}" onChange="{{ ct.onClick }}"><span class="dot" style="display:none"></span>{{ ct.label }}</label>
+              </sc-for>
+            </div>
+            <div class="seg">
+              <sc-for list="{{ timeframeOptions }}" as="tf" hint-placeholder-count="5">
+                <label class="seg-opt"><input type="radio" checked="{{ tf.active }}" onChange="{{ tf.onClick }}"><span class="dot" style="display:none"></span>{{ tf.label }}</label>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap">
+          <sc-for list="{{ legendItems }}" as="li" hint-placeholder-count="3">
+            <div onClick="{{ li.onClick }}" style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;opacity:{{ li.opacity }};user-select:none">
+              <span style="width:14px;height:3px;background:{{ li.color }};display:inline-block;border-radius:2px"></span>{{ li.label }}
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="position:relative;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:var(--space-4)">
+          <svg ref="{{ chartRef }}" viewBox="0 0 1080 400" style="width:100%;height:400px;display:block;cursor:crosshair" onMouseMove="{{ onChartMouseMove }}" onMouseLeave="{{ onChartMouseLeave }}" onMouseDown="{{ onChartMouseDown }}" onMouseUp="{{ onChartMouseUp }}">
+            <sc-for list="{{ gridLines }}" as="g" hint-placeholder-count="6">
+              <line x1="40" x2="1060" y1="{{ g.y }}" y2="{{ g.y }}" stroke="var(--color-divider)" stroke-width="1"></line>
+              <text x="8" y="{{ g.y }}" font-size="11" fill="var(--color-text)" opacity="0.55" dominant-baseline="middle">{{ g.label }}</text>
+            </sc-for>
+            <sc-for list="{{ xLabels }}" as="xl" hint-placeholder-count="6">
+              <text x="{{ xl.x }}" y="392" font-size="11" fill="var(--color-text)" opacity="0.55" text-anchor="middle">{{ xl.label }}</text>
+            </sc-for>
+
+            <sc-if value="{{ showCandles }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ candles }}" as="cd" hint-placeholder-count="0">
+                <line x1="{{ cd.x }}" x2="{{ cd.x }}" y1="{{ cd.highY }}" y2="{{ cd.lowY }}" stroke="{{ cd.color }}" stroke-width="1"></line>
+                <rect x="{{ cd.bx }}" y="{{ cd.by }}" width="{{ cd.bw }}" height="{{ cd.bh }}" fill="{{ cd.fill }}" stroke="{{ cd.color }}" stroke-width="1.4"></rect>
+              </sc-for>
+            </sc-if>
+
+            <sc-if value="{{ showLine }}" hint-placeholder-val="{{ true }}">
+              <path d="{{ closePathD }}" fill="none" stroke="{{ chartLineColor }}" stroke-width="2"></path>
+            </sc-if>
+
+            <sc-if value="{{ showDragOverlay }}" hint-placeholder-val="{{ false }}">
+              <rect x="{{ dragX1 }}" y="20" width="{{ dragW }}" height="360" fill="var(--color-accent)" opacity="0.14"></rect>
+            </sc-if>
+
+            <sc-if value="{{ showCompareLines }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ compareLines }}" as="cl" hint-placeholder-count="0">
+                <path d="{{ cl.d }}" fill="none" stroke="{{ cl.color }}" stroke-width="2" stroke-dasharray="{{ cl.dash }}" opacity="0.9"></path>
+              </sc-for>
+            </sc-if>
+
+            <sc-if value="{{ showSignal }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ signalMarkers }}" as="m" hint-placeholder-count="0">
+                <path d="{{ m.d }}" fill="var(--color-accent)"></path>
+              </sc-for>
+            </sc-if>
+
+            <sc-if value="{{ showTooltip }}" hint-placeholder-val="{{ false }}">
+              <line x1="{{ tooltipX }}" x2="{{ tooltipX }}" y1="20" y2="380" stroke="var(--color-accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"></line>
+            </sc-if>
+          </svg>
+
+          <sc-if value="{{ showTooltip }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:16px;left:{{ tooltipLeft }};background:var(--color-bg);border:1px solid var(--color-divider);border-radius:var(--radius-sm);padding:8px 10px;font-size:12px;pointer-events:none;box-shadow:var(--shadow-md)">
+              <div style="font-family:var(--font-heading);margin-bottom:4px">{{ tooltipDate }}</div>
+              <div>Close: {{ tooltipClose }}</div>
+              <div>P(up): {{ tooltipProba }}</div>
+            </div>
+          </sc-if>
+
+          <div style="margin-top:var(--space-3);display:flex;align-items:center;gap:6px;justify-content:center">
+            <i class="ph ph-magnifying-glass" style="opacity:0.5;font-size:13px"></i>
+            <span class="text-muted" style="font-size:11px">scroll on the chart to zoom · drag to select a range</span>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h4 style="margin:0">Signal history</h4>
+          <span class="text-muted" style="font-size:12px">{{ tableRowCount }} rows in range</span>
+        </div>
+        <div style="max-height:320px;overflow-y:auto;border:1px solid var(--color-divider);border-radius:var(--radius-md)">
+          <table class="table">
+            <thead>
+              <tr>
+                <sc-for list="{{ tableCols }}" as="col" hint-placeholder-count="5">
+                  <th onClick="{{ col.onClick }}" style="cursor:pointer;white-space:nowrap">{{ col.label }} <i class="{{ col.sortIcon }}"></i></th>
+                </sc-for>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ tableRows }}" as="row" hint-placeholder-count="8">
+                <tr>
+                  <td>{{ row.date }}</td>
+                  <td>{{ row.close }}</td>
+                  <td>{{ row.proba }}</td>
+                  <td><span class="{{ row.tagClass }}">{{ row.signal }}</span></td>
+                  <td style="color:{{ row.retColor }}">{{ row.nextReturn }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- BACKTEST TAB -->
+    <sc-if value="{{ isBacktest }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+        <h3 style="margin:0">Strategy vs buy-and-hold (out-of-sample only)</h3>
+        <div style="display:grid;grid-template-columns:280px 1fr;gap:var(--space-4)">
+          <table class="table">
+            <thead><tr><th></th><th>Strategy</th><th>Buy &amp; Hold</th></tr></thead>
+            <tbody>
+              <tr><td>Total return</td><td>{{ stratTotalReturn }}</td><td>{{ bhTotalReturn }}</td></tr>
+              <tr><td>Ann. return</td><td>{{ stratAnnReturn }}</td><td>{{ bhAnnReturn }}</td></tr>
+              <tr><td>Ann. vol</td><td>{{ stratAnnVol }}</td><td>{{ bhAnnVol }}</td></tr>
+              <tr><td>Sharpe</td><td>{{ strategySharpeLabel }}</td><td>{{ bhSharpeLabel }}</td></tr>
+              <tr><td>Max drawdown</td><td>{{ stratMaxDD }}</td><td>{{ bhMaxDD }}</td></tr>
+            </tbody>
+          </table>
+
+          <div style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:var(--space-4)">
+            <svg viewBox="0 0 800 340" style="width:100%;height:340px">
+              <sc-for list="{{ eqGridLines }}" as="g" hint-placeholder-count="4">
+                <line x1="10" x2="790" y1="{{ g.y }}" y2="{{ g.y }}" stroke="var(--color-divider)"></line>
+                <text x="4" y="{{ g.y }}" font-size="10" fill="var(--color-text)" opacity="0.5">{{ g.label }}</text>
+              </sc-for>
+              <path d="{{ drawdownAreaD }}" fill="var(--color-neutral-800)" opacity="0.5"></path>
+              <path d="{{ equityBhD }}" fill="none" stroke="var(--color-neutral-400)" stroke-width="2" stroke-dasharray="5 4"></path>
+              <path d="{{ equityStratD }}" fill="none" stroke="var(--color-accent)" stroke-width="2.5"></path>
+            </svg>
+            <div style="display:flex;gap:16px;font-size:12px;margin-top:6px">
+              <span><span style="display:inline-block;width:12px;height:2px;background:var(--color-accent);margin-right:5px"></span>Strategy equity</span>
+              <span><span style="display:inline-block;width:12px;height:2px;background:var(--color-neutral-400);margin-right:5px"></span>Buy &amp; hold equity</span>
+              <span><span style="display:inline-block;width:12px;height:8px;background:var(--color-neutral-800);margin-right:5px"></span>Strategy drawdown</span>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin:0">Trade log</h4>
+        <div style="max-height:300px;overflow-y:auto;border:1px solid var(--color-divider);border-radius:var(--radius-md)">
+          <table class="table">
+            <thead><tr><th>Date</th><th>Signal</th><th>Next-day return</th><th>Strategy return</th><th>Equity</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ tradeRows }}" as="tr2" hint-placeholder-count="8">
+                <tr>
+                  <td>{{ tr2.date }}</td>
+                  <td><span class="{{ tr2.tagClass }}">{{ tr2.signal }}</span></td>
+                  <td style="color:{{ tr2.retColor }}">{{ tr2.nextReturn }}</td>
+                  <td style="color:{{ tr2.retColor }}">{{ tr2.stratReturn }}</td>
+                  <td>{{ tr2.equity }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- MODEL INSIGHTS TAB -->
+    <sc-if value="{{ isModel }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+        <div>
+          <h3 style="margin:0 0 var(--space-3)">Model comparison (walk-forward validation, mean across folds)</h3>
+          <table class="table">
+            <thead><tr><th></th><th>Mean accuracy</th><th>Mean ROC AUC</th><th>Mean precision</th><th>Mean recall</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ modelCompRows }}" as="mc" hint-placeholder-count="2">
+                <tr>
+                  <td style="display:flex;align-items:center;gap:8px">{{ mc.name }}<sc-if value="{{ mc.best }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">BEST</span></sc-if></td>
+                  <td>{{ mc.accuracy }}</td><td>{{ mc.rocAuc }}</td><td>{{ mc.precision }}</td><td>{{ mc.recall }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:var(--space-6)">
+          <div>
+            <h4 style="margin:0 0 var(--space-3)">Feature importance</h4>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ featureBars }}" as="fb" hint-placeholder-count="12">
+                <div style="display:grid;grid-template-columns:120px 1fr 50px;align-items:center;gap:8px;font-size:12px">
+                  <span class="text-muted">{{ fb.name }}</span>
+                  <div style="background:var(--color-divider);border-radius:3px;height:8px;overflow:hidden"><div style="width:{{ fb.pct }};height:100%;background:var(--color-accent)"></div></div>
+                  <span>{{ fb.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <h4 style="margin:0 0 var(--space-3)">Confusion matrix — {{ ticker }} @ threshold {{ thresholdLabel }}</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:var(--space-3)">
+              <div class="card" style="align-items:center;text-align:center;background:var(--color-accent-900)"><div class="card-meta">True positive</div><div class="card-title">{{ confMatrix.tp }}</div></div>
+              <div class="card" style="align-items:center;text-align:center"><div class="card-meta">False positive</div><div class="card-title">{{ confMatrix.fp }}</div></div>
+              <div class="card" style="align-items:center;text-align:center"><div class="card-meta">False negative</div><div class="card-title">{{ confMatrix.fn }}</div></div>
+              <div class="card" style="align-items:center;text-align:center;background:var(--color-accent-900)"><div class="card-meta">True negative</div><div class="card-title">{{ confMatrix.tn }}</div></div>
+            </div>
+
+            <h4 style="margin:var(--space-3) 0">ROC curve</h4>
+            <svg viewBox="0 0 200 200" style="width:180px;height:180px">
+              <line x1="20" y1="180" x2="20" y2="10" stroke="var(--color-divider)"></line>
+              <line x1="20" y1="180" x2="190" y2="180" stroke="var(--color-divider)"></line>
+              <line x1="20" y1="180" x2="190" y2="10" stroke="var(--color-neutral-700)" stroke-dasharray="3 3"></line>
+              <path d="{{ rocCurveD }}" fill="none" stroke="var(--color-accent)" stroke-width="2.5"></path>
+              <text x="100" y="198" font-size="10" fill="var(--color-text)" opacity="0.6" text-anchor="middle">AUC {{ meanRocAucLabel }}</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div class="card" style="background:color-mix(in srgb, var(--color-accent) 10%, var(--color-surface));border:1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)">
+      <p style="margin:0;font-size:13px;line-height:1.6"><b style="color:var(--color-accent)">Read the numbers honestly</b>: next-day direction from daily technical indicators is close to an efficient-markets coin flip (ROC AUC near 0.5 above). That's expected, not a bug — the value of this project is the pipeline (live ingestion → walk-forward validated training → backtest → dashboard), not a claim of alpha.</p>
+    </div>
+  </div>
+
+  </sc-if>
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+function fmtDate(d) { return d.toISOString().slice(0, 10); }
+function fmtMonth(d) { return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); }
+function pct(v) { return (v * 100).toFixed(1) + '%'; }
+function pctSigned(v) { return (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%'; }
+
+const MODEL_DISPLAY_NAMES = {
+  logistic_regression: 'Logistic Regression',
+  random_forest: 'Random Forest',
+  lightgbm: 'LightGBM',
+  xgboost: 'XGBoost',
+};
+function displayModelName(key) {
+  if (!key) return '—';
+  if (MODEL_DISPLAY_NAMES[key]) return MODEL_DISPLAY_NAMES[key];
+  return key.replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+}
+
+// Binary long/flat backtest on the model's out-of-sample predictions — matches
+// src/backtest.py's simplest mode (position sizing / transaction costs / the
+// VIX regime filter live server-side; this client-side chart mirrors the
+// baseline case so the comp stays a plain static page with no backend).
+function computeBacktest(rows, threshold) {
+  const scored = rows.filter(function (r) { return r.nextDayReturn !== null; }).map(function (r) {
+    const signal = r.probaUp > threshold ? 1 : 0;
+    return Object.assign({}, r, { signal: signal, stratReturn: signal * r.nextDayReturn, bhReturn: r.nextDayReturn });
+  });
+  const perf = function (key) {
+    const rets = scored.map(function (r) { return r[key]; });
+    const n = rets.length || 1;
+    let cum = 1; const curve = [];
+    for (let i = 0; i < rets.length; i++) { cum *= (1 + rets[i]); curve.push(cum); }
+    const totalReturn = cum - 1;
+    const annReturn = Math.pow(1 + totalReturn, 252 / n) - 1;
+    const mean = rets.reduce(function (a, b) { return a + b; }, 0) / n;
+    const variance = rets.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / n;
+    const annVol = Math.sqrt(variance) * Math.sqrt(252);
+    const sharpe = annVol > 1e-8 ? (mean * 252) / annVol : 0;
+    let peak = -Infinity, maxDD = 0;
+    for (let i = 0; i < curve.length; i++) { peak = Math.max(peak, curve[i]); maxDD = Math.min(maxDD, curve[i] / peak - 1); }
+    return { totalReturn: totalReturn, annReturn: annReturn, annVol: annVol, sharpe: sharpe, maxDD: maxDD, curve: curve };
+  };
+  return { strategy: perf('stratReturn'), buyHold: perf('bhReturn'), scored: scored };
+}
+
+// A real ROC curve computed from this ticker's actual out-of-sample
+// predictions (sweep every probaUp cutoff), replacing the design comp's
+// original illustrative power-curve stand-in.
+function computeRoc(rows) {
+  const labeled = rows
+    .filter(function (r) { return r.nextDayReturn !== null; })
+    .map(function (r) { return { proba: r.probaUp, actual: r.nextDayReturn > 0 ? 1 : 0 }; });
+  const sorted = labeled.slice().sort(function (a, b) { return b.proba - a.proba; });
+  const P = sorted.filter(function (r) { return r.actual === 1; }).length;
+  const N = sorted.length - P;
+  let tp = 0, fp = 0;
+  const pts = [{ fpr: 0, tpr: 0 }];
+  for (let i = 0; i < sorted.length; i++) {
+    if (sorted[i].actual === 1) tp++; else fp++;
+    pts.push({ fpr: N ? fp / N : 0, tpr: P ? tp / P : 0 });
+  }
+  let auc = 0;
+  for (let i = 1; i < pts.length; i++) {
+    auc += (pts[i].fpr - pts[i - 1].fpr) * (pts[i].tpr + pts[i - 1].tpr) / 2;
+  }
+  return { pts: pts, auc: auc };
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      ready: false, loadError: null,
+      tickers: [], seriesCache: {}, live: {}, modelMetrics: null, generatedAtUtc: null,
+      ticker: null, compareTickers: [], threshold: 0.5, alertThreshold: 0.65,
+      alertsEnabled: true, theme: 'dark', activeTab: 'overview',
+      chartType: 'line', timeframe: 'ALL', brushStart: 0, brushEnd: 0,
+      visibleClose: true, visibleSignal: true, visibleCompare: true,
+      hoverIdx: null, sidebarCollapsed: false, notifOpen: false,
+      sortCol: 'date', sortDir: 'desc',
+      tickerOpen: false, tickerSearch: '', dragStart: null, dragEnd: null, dragging: false, pnlUnit: 'pct',
+    };
+    this.chartRef = React.createRef();
+    this.handleWheel = this.handleWheel.bind(this);
+    this.loadData = this.loadData.bind(this);
+  }
+
+  componentDidMount() {
+    this._wheelAttached = false;
+    this.loadData();
+  }
+  componentWillUnmount() {
+    if (this.chartRef.current) this.chartRef.current.removeEventListener('wheel', this.handleWheel);
+  }
+  componentDidUpdate(_prevProps) {
+    // The chart <svg> doesn't exist yet on the first render (data is still
+    // loading), so the native wheel listener has to attach once it mounts —
+    // and re-attach to the fresh node after a "Refresh data" remount. The
+    // runtime only forwards prevProps here (not prevState), so track the
+    // attach/detach ourselves via an instance flag rather than diffing state.
+    if (this.state.ready && this.chartRef.current && !this._wheelAttached) {
+      this.chartRef.current.addEventListener('wheel', this.handleWheel, { passive: false });
+      this._wheelAttached = true;
+    } else if ((!this.state.ready || !this.chartRef.current) && this._wheelAttached) {
+      this._wheelAttached = false;
+    }
+  }
+
+  // Real data lives in frontend/data/dashboard_data.json, written by
+  // `python -m src.export_frontend_data` (run manually, or by the scheduled
+  // retrain workflow after every model/backtest refresh). No backend server —
+  // this is a plain fetch() of a static file, re-run on demand via the
+  // sidebar's "Refresh data" button.
+  loadData() {
+    const self = this;
+    this.setState({ ready: false, loadError: null });
+    fetch('./data/dashboard_data.json', { cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        const seriesCache = {};
+        Object.keys(data.series).forEach(function (t) {
+          seriesCache[t] = data.series[t].map(function (r) {
+            return Object.assign({}, r, { date: new Date(r.date + 'T00:00:00Z') });
+          });
+        });
+        const tickers = data.tickers;
+        const firstTicker = tickers[0];
+        const len = seriesCache[firstTicker] ? seriesCache[firstTicker].length : 0;
+        self.setState(function (st) {
+          const keepTicker = st.ticker && tickers.indexOf(st.ticker) !== -1;
+          return {
+            ready: true, loadError: null,
+            tickers: tickers, seriesCache: seriesCache, live: data.live,
+            modelMetrics: data.modelMetrics, generatedAtUtc: data.generatedAtUtc,
+            ticker: keepTicker ? st.ticker : firstTicker,
+            brushStart: 0, brushEnd: Math.max(0, len - 1),
+          };
+        });
+      })
+      .catch(function (err) {
+        self.setState({ ready: false, loadError: (err && err.message) ? err.message : String(err) });
+      });
+  }
+
+  handleWheel(e) {
+    e.preventDefault();
+    const s = this.state;
+    if (!s.ready || !s.seriesCache[s.ticker]) return;
+    const len = s.seriesCache[s.ticker].length;
+    const start = Math.max(0, Math.min(s.brushStart, s.brushEnd));
+    const end = Math.min(len - 1, Math.max(s.brushStart, s.brushEnd));
+    const curLen = end - start + 1;
+    if (!this.chartRef.current) return;
+    const rect = this.chartRef.current.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width;
+    const idx = Math.max(0, Math.min(curLen - 1, Math.round(relX * (curLen - 1))));
+    const centerAbs = start + idx;
+    const factor = e.deltaY > 0 ? 1.15 : 0.87;
+    let newLen = Math.max(10, Math.min(len, Math.round(curLen * factor)));
+    const p = curLen > 1 ? idx / (curLen - 1) : 0.5;
+    let newStart = Math.round(centerAbs - newLen * p);
+    let newEnd = newStart + newLen - 1;
+    if (newStart < 0) { newEnd -= newStart; newStart = 0; }
+    if (newEnd > len - 1) { newStart -= (newEnd - (len - 1)); newEnd = len - 1; }
+    newStart = Math.max(0, newStart);
+    this.setState({ brushStart: newStart, brushEnd: newEnd, timeframe: 'custom' });
+  }
+
+  // ---- geometry helpers ----
+  buildChartGeom(rows, W, H, padL, padR, padT, padB) {
+    const closes = rows.map(function (r) { return r.close; });
+    const min = Math.min.apply(null, closes), max = Math.max.apply(null, closes);
+    const span = (max - min) || 1;
+    const xScale = function (i) { return padL + (i / Math.max(1, rows.length - 1)) * (W - padL - padR); };
+    const yScale = function (v) { return H - padB - ((v - min) / span) * (H - padT - padB); };
+    return { xScale: xScale, yScale: yScale, min: min, max: max };
+  }
+
+  pathFor(rows, geom, key) {
+    return rows.map(function (r, i) {
+      return (i === 0 ? 'M' : 'L') + ' ' + geom.xScale(i).toFixed(1) + ' ' + geom.yScale(r[key]).toFixed(1);
+    }).join(' ');
+  }
+
+  renderVals() {
+    const self = this;
+    const s = this.state;
+
+    if (!s.ready) {
+      return {
+        ready: false,
+        // the outermost wrapper's style="{{ rootStyle }}" sits outside both
+        // the ready/not-ready branches, so it must be present in this
+        // early-return object too, not just the main one below.
+        rootStyle: { '--color-rise': 'oklch(0.72 0.17 145)', '--color-fall': 'oklch(0.66 0.19 25)' },
+        isError: !!s.loadError,
+        statusIcon: s.loadError ? 'ph ph-warning-circle' : 'ph ph-circle-notch',
+        statusIconStyle: 'font-size:30px;color:var(--color-accent);' + (s.loadError ? '' : 'animation:spin 1s linear infinite'),
+        statusMessage: s.loadError
+          ? ('Could not load real pipeline data (frontend/data/dashboard_data.json): ' + s.loadError +
+             '. Run `python -m src.export_frontend_data` and serve this directory over HTTP (not file://), then retry.')
+          : 'Loading real pipeline data…',
+        retryLoad: this.loadData,
+      };
+    }
+
+    const rows = s.seriesCache[s.ticker] || [];
+    const N_DAYS = rows.length;
+    const backtestFull = computeBacktest(rows, s.threshold);
+    const roc = computeRoc(rows);
+    const bestModelKey = s.modelMetrics.bestModel;
+    const bestModelComparison = s.modelMetrics.comparison[bestModelKey] || { meanRocAuc: 0 };
+
+    // theme + rise/fall semantic colors (oklch, tuned to the accent's lightness/chroma)
+    const rootStyle = Object.assign(
+      { '--color-rise': 'oklch(0.72 0.17 145)', '--color-fall': 'oklch(0.66 0.19 25)' },
+      s.theme === 'dark' ? {} : {
+        '--color-bg': 'var(--color-neutral-100)', '--color-surface': 'var(--color-neutral-200)',
+        '--color-text': 'var(--color-neutral-900)',
+        '--color-divider': 'color-mix(in srgb, var(--color-neutral-900) 16%, transparent)',
+      }
+    );
+
+    // brush / timeframe
+    const start = Math.max(0, Math.min(s.brushStart, s.brushEnd));
+    const end = Math.min(N_DAYS - 1, Math.max(s.brushStart, s.brushEnd));
+    const visibleRows = rows.slice(start, end + 1);
+    const W = 1080, H = 400, padL = 40, padR = 20, padT = 20, padB = 30;
+    const geom = this.buildChartGeom(visibleRows, W, H, padL, padR, padT, padB);
+
+    const gridLines = [];
+    for (let g = 0; g <= 4; g++) {
+      const v = geom.min + (geom.max - geom.min) * (g / 4);
+      gridLines.push({ y: geom.yScale(v).toFixed(1), label: v.toFixed(0) });
+    }
+    const xLabels = [];
+    const xStep = Math.max(1, Math.floor(visibleRows.length / 6));
+    for (let i = 0; i < visibleRows.length; i += xStep) {
+      xLabels.push({ x: geom.xScale(i).toFixed(1), label: fmtMonth(visibleRows[i].date) });
+    }
+
+    const chartMode = s.compareTickers.length > 0 ? 'compare' : 'price';
+    let closePathD, compareLines = [];
+    const compareColors = ['var(--color-accent-400)', 'var(--color-neutral-400)', 'var(--color-accent-700)', 'var(--color-neutral-600)'];
+    if (chartMode === 'price') {
+      closePathD = this.pathFor(visibleRows, geom, 'close');
+    } else {
+      const base0 = visibleRows[0].close;
+      const idxRows = visibleRows.map(function (r) { return Object.assign({}, r, { idxClose: (r.close / base0 - 1) * 100 }); });
+      const idxCloses = idxRows.map(function (r) { return r.idxClose; }).concat([0]);
+      const min = Math.min.apply(null, idxCloses), max = Math.max.apply(null, idxCloses);
+      const span = (max - min) || 1;
+      const yS = function (v) { return H - padB - ((v - min) / span) * (H - padT - padB); };
+      closePathD = idxRows.map(function (r, i) {
+        return (i === 0 ? 'M' : 'L') + ' ' + geom.xScale(i).toFixed(1) + ' ' + yS(r.idxClose).toFixed(1);
+      }).join(' ');
+      gridLines.length = 0;
+      for (let g = 0; g <= 4; g++) {
+        const v = min + (max - min) * (g / 4);
+        gridLines.push({ y: yS(v).toFixed(1), label: v.toFixed(1) + '%' });
+      }
+      s.compareTickers.forEach(function (t, ci) {
+        const cAll = s.seriesCache[t];
+        if (!cAll || !cAll.length) return;
+        const cRows = cAll.slice(start, end + 1);
+        if (!cRows.length) return;
+        const cbase0 = cRows[0].close;
+        const d = cRows.map(function (r, i) {
+          return (i === 0 ? 'M' : 'L') + ' ' + geom.xScale(i).toFixed(1) + ' ' + yS((r.close / cbase0 - 1) * 100).toFixed(1);
+        }).join(' ');
+        compareLines.push({ ticker: t, d: d, color: compareColors[ci % compareColors.length], dash: '0' });
+      });
+    }
+
+    // point-A-to-point-B range readout (drag-select on the chart, or the full visible/brushed window)
+    const rStart = visibleRows[0], rEnd = visibleRows[visibleRows.length - 1];
+    const rangeDelta = rEnd.close - rStart.close;
+    const rangeDeltaPctVal = rangeDelta / rStart.close;
+    const rangeRose = rangeDelta >= 0;
+    const chartLineColor = rangeRose ? 'var(--color-rise)' : 'var(--color-fall)';
+
+    const signalMarkers = visibleRows.map(function (r, i) { return { r: r, i: i }; })
+      .filter(function (o) { return o.r.probaUp > s.threshold; })
+      .map(function (o) {
+        const x = geom.xScale(o.i), y = geom.yScale(o.r.close) + 14;
+        return { d: 'M ' + x.toFixed(1) + ' ' + (y - 8).toFixed(1) + ' L ' + (x - 4).toFixed(1) + ' ' + y.toFixed(1) + ' L ' + (x + 4).toFixed(1) + ' ' + y.toFixed(1) + ' Z' };
+      });
+
+    const candles = visibleRows.map(function (r, i) {
+      const x = geom.xScale(i);
+      const bw = Math.max(2, ((W - padL - padR) / visibleRows.length) * 0.55);
+      const up = r.close >= r.open;
+      const color = up ? 'var(--color-rise)' : 'var(--color-fall)';
+      const openY = geom.yScale(r.open), closeY = geom.yScale(r.close);
+      return {
+        x: x.toFixed(1), highY: geom.yScale(r.high).toFixed(1), lowY: geom.yScale(r.low).toFixed(1),
+        bx: (x - bw / 2).toFixed(1), by: Math.min(openY, closeY).toFixed(1), bw: bw.toFixed(1),
+        bh: Math.max(1.5, Math.abs(openY - closeY)).toFixed(1),
+        fill: up ? 'color-mix(in srgb, var(--color-rise) 30%, transparent)' : 'color-mix(in srgb, var(--color-fall) 30%, transparent)',
+        color: color,
+      };
+    });
+
+    // hover
+    let showTooltip = false, tooltipX = 0, tooltipLeft = '0px', tooltipDate = '', tooltipClose = '', tooltipProba = '';
+    if (s.hoverIdx !== null && visibleRows[s.hoverIdx]) {
+      const r = visibleRows[s.hoverIdx];
+      showTooltip = true;
+      tooltipX = geom.xScale(s.hoverIdx).toFixed(1);
+      tooltipLeft = Math.min(90, Math.max(0, (s.hoverIdx / visibleRows.length) * 100)) + '%';
+      tooltipDate = fmtDate(r.date);
+      tooltipClose = '$' + r.close.toFixed(2);
+      tooltipProba = (r.probaUp * 100).toFixed(1) + '%';
+    }
+
+    // table
+    let tableData = visibleRows.map(function (r, i) { return Object.assign({}, r, { idx: i }); });
+    tableData.sort(function (a, b) {
+      const dir = s.sortDir === 'asc' ? 1 : -1;
+      if (s.sortCol === 'date') return (a.date - b.date) * dir;
+      if (s.sortCol === 'close') return (a.close - b.close) * dir;
+      if (s.sortCol === 'proba') return (a.probaUp - b.probaUp) * dir;
+      if (s.sortCol === 'nextReturn') return ((a.nextDayReturn || 0) - (b.nextDayReturn || 0)) * dir;
+      return 0;
+    });
+    const tableRows = tableData.slice(0, 80).map(function (r) {
+      return {
+        date: fmtDate(r.date), close: '$' + r.close.toFixed(2), proba: (r.probaUp * 100).toFixed(1) + '%',
+        signal: r.probaUp > s.threshold ? 'LONG' : 'FLAT',
+        tagClass: r.probaUp > s.threshold ? 'tag tag-accent' : 'tag tag-neutral',
+        nextReturn: r.nextDayReturn === null ? '—' : pctSigned(r.nextDayReturn),
+        retColor: r.nextDayReturn === null ? 'var(--color-text)' : (r.nextDayReturn >= 0 ? 'var(--color-rise)' : 'var(--color-fall)'),
+      };
+    });
+
+    const sortIcon = function (col) { return s.sortCol === col ? (s.sortDir === 'asc' ? 'ph ph-caret-up' : 'ph ph-caret-down') : 'ph ph-caret-up-down'; };
+    const setSort = function (col) { return function () { self.setState(function (st) { return { sortCol: col, sortDir: st.sortCol === col && st.sortDir === 'desc' ? 'asc' : 'desc' }; }); }; };
+    const tableCols = [
+      { label: 'Date', onClick: setSort('date'), sortIcon: sortIcon('date') },
+      { label: 'Close', onClick: setSort('close'), sortIcon: sortIcon('close') },
+      { label: 'P(up)', onClick: setSort('proba'), sortIcon: sortIcon('proba') },
+      { label: 'Signal', onClick: function () {}, sortIcon: '' },
+      { label: 'Next-day return', onClick: setSort('nextReturn'), sortIcon: sortIcon('nextReturn') },
+    ];
+
+    // backtest tab (full history, not brush-limited, matches original semantics)
+    const bt = backtestFull;
+    const eqRows = bt.scored;
+    const eqGeom = (function () {
+      const all = bt.strategy.curve.concat(bt.buyHold.curve, [0.5, 1.1]);
+      return { min: Math.min.apply(null, all), max: Math.max.apply(null, all) };
+    })();
+    const eqW = 780, eqH = 340, eqPadL = 30, eqPadR = 10, eqPadT = 20, eqPadB = 20;
+    const eqX = function (i) { return eqPadL + (i / Math.max(1, eqRows.length - 1)) * (eqW - eqPadL - eqPadR); };
+    const eqY = function (v) { return eqH - eqPadB - ((v - eqGeom.min) / (eqGeom.max - eqGeom.min || 1)) * (eqH - eqPadT - eqPadB); };
+    const equityStratD = bt.strategy.curve.map(function (v, i) { return (i === 0 ? 'M' : 'L') + ' ' + eqX(i).toFixed(1) + ' ' + eqY(v).toFixed(1); }).join(' ');
+    const equityBhD = bt.buyHold.curve.map(function (v, i) { return (i === 0 ? 'M' : 'L') + ' ' + eqX(i).toFixed(1) + ' ' + eqY(v).toFixed(1); }).join(' ');
+    let peak = -Infinity;
+    const ddPts = bt.strategy.curve.map(function (v) { peak = Math.max(peak, v); return v / peak - 1; });
+    const ddY = function (d) { return eqH - eqPadB - (Math.max(-0.4, d) / -0.4) * 40; };
+    const drawdownAreaD = 'M ' + eqX(0).toFixed(1) + ' ' + (eqH - eqPadB).toFixed(1) + ' ' +
+      ddPts.map(function (d, i) { return 'L ' + eqX(i).toFixed(1) + ' ' + ddY(d).toFixed(1); }).join(' ') +
+      ' L ' + eqX(Math.max(0, ddPts.length - 1)).toFixed(1) + ' ' + (eqH - eqPadB).toFixed(1) + ' Z';
+    const eqGridLines = [0, 0.5, 1].map(function (f) {
+      return { y: (eqPadT + f * (eqH - eqPadT - eqPadB)).toFixed(1), label: (eqGeom.max - f * (eqGeom.max - eqGeom.min)).toFixed(2) + 'x' };
+    });
+
+    const tradeRows = eqRows.slice(-60).reverse().map(function (r) {
+      const idx = eqRows.indexOf(r);
+      return {
+        date: fmtDate(r.date), signal: r.signal ? 'LONG' : 'FLAT', tagClass: r.signal ? 'tag tag-accent' : 'tag tag-neutral',
+        nextReturn: pctSigned(r.nextDayReturn), stratReturn: pctSigned(r.stratReturn),
+        retColor: r.stratReturn >= 0 ? 'var(--color-rise)' : 'var(--color-fall)',
+        equity: bt.strategy.curve[idx] ? bt.strategy.curve[idx].toFixed(3) + 'x' : '—',
+      };
+    });
+
+    // confusion matrix (full history)
+    let tp = 0, fp = 0, fn = 0, tn = 0;
+    rows.forEach(function (r) {
+      if (r.nextDayReturn === null) return;
+      const actual = r.nextDayReturn > 0 ? 1 : 0; const pred = r.probaUp > s.threshold ? 1 : 0;
+      if (actual === 1 && pred === 1) tp++; else if (actual === 0 && pred === 1) fp++;
+      else if (actual === 1 && pred === 0) fn++; else tn++;
+    });
+
+    // real ROC curve (see computeRoc) scaled into the 200x200 viewBox the template draws
+    const rocPts = roc.pts.map(function (p, i) {
+      return (i === 0 ? 'M' : 'L') + ' ' + (20 + p.fpr * 170).toFixed(1) + ' ' + (180 - p.tpr * 170).toFixed(1);
+    });
+
+    // gauge
+    const liveEntry = s.live[s.ticker] || { price: null, proba: null, asOf: null };
+    const liveProba = liveEntry.proba === null || liveEntry.proba === undefined ? 0.5 : liveEntry.proba;
+    const gaugeLen = Math.PI * 54;
+    const gaugeDash = (liveProba * gaugeLen).toFixed(1) + ' ' + gaugeLen.toFixed(1);
+
+    const tabs = [
+      { key: 'overview', label: 'Overview', icon: 'ph ph-chart-line-up' },
+      { key: 'backtest', label: 'Backtest', icon: 'ph ph-chart-bar' },
+      { key: 'model', label: 'Model Insights', icon: 'ph ph-brain' },
+    ].map(function (t) {
+      return Object.assign({}, t, {
+        onClick: function () { self.setState({ activeTab: t.key }); },
+        color: s.activeTab === t.key ? 'var(--color-accent)' : 'var(--color-text)',
+        borderColor: s.activeTab === t.key ? 'var(--color-accent)' : 'transparent',
+      });
+    });
+
+    const compareOptions = s.tickers.filter(function (t) { return t !== s.ticker; }).map(function (t) {
+      const active = s.compareTickers.indexOf(t) !== -1;
+      return {
+        label: t, tagClass: active ? 'tag tag-accent' : 'tag tag-outline',
+        onClick: function () {
+          self.setState(function (st) {
+            return { compareTickers: active ? st.compareTickers.filter(function (x) { return x !== t; }) : st.compareTickers.concat([t]) };
+          });
+        },
+      };
+    });
+
+    const chartTypeOptions = [{ key: 'line', label: 'Line' }, { key: 'candle', label: 'Candles' }].map(function (o) {
+      return Object.assign({}, o, { active: s.chartType === o.key, onClick: function () { self.setState({ chartType: o.key }); } });
+    });
+    const timeframeOptions = [
+      { key: '1M', n: 21 }, { key: '3M', n: 63 }, { key: '6M', n: 126 }, { key: '1Y', n: 252 }, { key: 'ALL', n: N_DAYS },
+    ].map(function (o) {
+      return {
+        label: o.key, active: s.timeframe === o.key,
+        onClick: function () { self.setState({ timeframe: o.key, brushStart: Math.max(0, N_DAYS - o.n), brushEnd: N_DAYS - 1 }); },
+      };
+    });
+
+    const legendItems = [
+      { key: 'close', label: chartMode === 'compare' ? s.ticker + ' (%)' : 'Close', color: chartLineColor, on: s.visibleClose, toggle: 'visibleClose' },
+      { key: 'signal', label: 'Long signal', color: 'var(--color-accent)', on: s.visibleSignal, toggle: 'visibleSignal' },
+    ];
+    if (chartMode === 'compare') legendItems.push({ key: 'compare', label: 'Compare tickers', color: 'var(--color-accent-400)', on: s.visibleCompare, toggle: 'visibleCompare' });
+    const legendItemsOut = legendItems.map(function (li) {
+      return Object.assign({}, li, {
+        opacity: li.on ? 1 : 0.35,
+        onClick: function () { self.setState(function (st) { const next = {}; next[li.toggle] = !st[li.toggle]; return next; }); },
+      });
+    });
+
+    const strategySharpe = bt.strategy.sharpe, bhSharpe = bt.buyHold.sharpe;
+    const signalOn = liveProba > s.threshold;
+    const prevPrice = rows[N_DAYS - 2] ? rows[N_DAYS - 2].close : (liveEntry.price === null ? 0 : liveEntry.price);
+    const livePrice = liveEntry.price === null || liveEntry.price === undefined ? (rows[N_DAYS - 1] ? rows[N_DAYS - 1].close : 0) : liveEntry.price;
+    const delta = livePrice - prevPrice;
+    const deltaColor = delta >= 0 ? 'var(--color-rise)' : 'var(--color-fall)';
+
+    // ticker combobox rows (with mini sparkline + live delta)
+    const tickerRows = s.tickers
+      .filter(function (t) { return t.toLowerCase().indexOf(s.tickerSearch.toLowerCase()) !== -1; })
+      .map(function (t) {
+        const tRows = s.seriesCache[t] || [];
+        const spark = tRows.slice(-30);
+        const sparkCloses = spark.map(function (r) { return r.close; });
+        const sMin = spark.length ? Math.min.apply(null, sparkCloses) : 0;
+        const sMax = spark.length ? (Math.max.apply(null, sparkCloses) || 1) : 1;
+        const sSpan = (sMax - sMin) || 1;
+        const sparkD = spark.map(function (r, i) {
+          return (i === 0 ? 'M' : 'L') + ' ' + (i / Math.max(1, spark.length - 1) * 58 + 1).toFixed(1) + ' ' + (20 - ((r.close - sMin) / sSpan) * 18).toFixed(1);
+        }).join(' ');
+        const tLive = s.live[t] || { price: null, proba: null };
+        const tPrevRow = tRows[tRows.length - 2];
+        const tPrev = tPrevRow ? tPrevRow.close : (tLive.price === null ? 0 : tLive.price);
+        const tLivePrice = tLive.price === null || tLive.price === undefined ? (tRows.length ? tRows[tRows.length - 1].close : 0) : tLive.price;
+        const tDelta = tLivePrice - tPrev;
+        const tRose = tDelta >= 0;
+        const color = tRose ? 'var(--color-rise)' : 'var(--color-fall)';
+        return {
+          ticker: t, sparkD: sparkD, color: color, priceLabel: '$' + tLivePrice.toFixed(2),
+          deltaLabel: tPrev ? pctSigned(tDelta / tPrev) : '—',
+          rowBg: t === s.ticker ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent',
+          onClick: function () { self.setState({ ticker: t, tickerOpen: false, tickerSearch: '' }); },
+        };
+      });
+
+    // drag-select overlay geometry
+    let showDragOverlay = false, dragX1 = 0, dragW = 0;
+    if (s.dragging && s.dragStart !== null && s.dragEnd !== null && s.dragStart !== s.dragEnd) {
+      const a = Math.min(s.dragStart, s.dragEnd), b = Math.max(s.dragStart, s.dragEnd);
+      showDragOverlay = true; dragX1 = geom.xScale(a).toFixed(1); dragW = (geom.xScale(b) - geom.xScale(a)).toFixed(1);
+    }
+    const idxFromEvent = function (e) {
+      if (!self.chartRef.current) return null;
+      const rect = self.chartRef.current.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / rect.width;
+      const idx = Math.round(relX * (visibleRows.length - 1));
+      return Math.max(0, Math.min(visibleRows.length - 1, idx));
+    };
+
+    // win rate over the visible/selected range
+    const daysWithReturn = visibleRows.filter(function (r) { return r.nextDayReturn !== null; });
+    const winners = daysWithReturn.filter(function (r) { return r.nextDayReturn > 0; }).length;
+    const winRate = daysWithReturn.length ? winners / daysWithReturn.length : 0;
+    const pnlAbs = rangeDelta, pnlPct = rangeDeltaPctVal;
+    const pnlLabel = s.pnlUnit === 'pct' ? pctSigned(pnlPct) : ((pnlAbs >= 0 ? '+$' : '-$') + Math.abs(pnlAbs).toFixed(2));
+
+    // threshold alerts — recomputed from the real live snapshot each render
+    // (there's no live stream to push "crossing" events from a static export,
+    // so this reports tickers currently above the alert threshold rather than
+    // simulating a crossing).
+    const alerts = s.alertsEnabled
+      ? s.tickers
+          .filter(function (t) { const l = s.live[t]; return l && l.proba !== null && l.proba !== undefined && l.proba > s.alertThreshold; })
+          .map(function (t) {
+            const l = s.live[t];
+            return { id: t, ticker: t, time: l.asOf || '', message: 'P(up) is ' + (l.proba * 100).toFixed(1) + '% — above your ' + (s.alertThreshold * 100).toFixed(0) + '% alert threshold' };
+          })
+      : [];
+
+    const modelCompRows = Object.keys(s.modelMetrics.comparison).map(function (key) {
+      const m = s.modelMetrics.comparison[key];
+      return {
+        name: displayModelName(key), best: key === bestModelKey,
+        accuracy: m.meanAccuracy.toFixed(3), rocAuc: m.meanRocAuc.toFixed(3),
+        precision: m.meanPrecision.toFixed(3), recall: m.meanRecall.toFixed(3),
+      };
+    });
+
+    const featureEntries = Object.keys(s.modelMetrics.featureImportance).map(function (name) {
+      return [name, s.modelMetrics.featureImportance[name]];
+    });
+    const maxImportance = featureEntries.length ? featureEntries[0][1] : 1;
+    const featureBars = featureEntries.map(function (entry) {
+      return { name: entry[0], value: entry[1].toFixed(3), pct: (entry[1] / (maxImportance || 1) * 100).toFixed(0) + '%' };
+    });
+
+    return {
+      ready: true,
+      rootStyle: rootStyle,
+      sidebarWidth: s.sidebarCollapsed ? '56px' : '260px',
+      sidebarIcon: s.sidebarCollapsed ? 'ph ph-caret-right' : 'ph ph-caret-left',
+      toggleSidebar: function () { self.setState(function (st) { return { sidebarCollapsed: !st.sidebarCollapsed }; }); },
+      sidebarCollapsed: s.sidebarCollapsed,
+      tickers: s.tickers, ticker: s.ticker,
+      onTickerChange: function (e) { self.setState({ ticker: e.target.value }); },
+      tickerOpen: s.tickerOpen, toggleTickerOpen: function () { self.setState(function (st) { return { tickerOpen: !st.tickerOpen }; }); },
+      tickerCaretIcon: s.tickerOpen ? 'ph ph-caret-up' : 'ph ph-caret-down',
+      tickerSearch: s.tickerSearch, onTickerSearchChange: function (e) { self.setState({ tickerSearch: e.target.value }); },
+      tickerRows: tickerRows,
+      compareOptions: compareOptions,
+      threshold: s.threshold, thresholdLabel: (s.threshold * 100).toFixed(0) + '%',
+      thresholdPct: ((s.threshold - 0.3) / 0.4 * 100).toFixed(1),
+      onThresholdChange: function (e) { self.setState({ threshold: parseFloat(e.target.value) }); },
+      alertThreshold: s.alertThreshold, alertThresholdLabel: (s.alertThreshold * 100).toFixed(0) + '%',
+      alertPct: ((s.alertThreshold - 0.3) / 0.6 * 100).toFixed(1),
+      onAlertThresholdChange: function (e) { self.setState({ alertThreshold: parseFloat(e.target.value) }); },
+      alertsEnabled: s.alertsEnabled, toggleAlerts: function () { self.setState(function (st) { return { alertsEnabled: !st.alertsEnabled }; }); },
+      refreshData: this.loadData,
+      bestModelLabel: displayModelName(bestModelKey),
+      trainedAt: s.modelMetrics.trainedAtUtc ? s.modelMetrics.trainedAtUtc.slice(0, 19) : '—',
+      trainingRows: s.modelMetrics.nRows,
+      registryVersion: s.modelMetrics.registryVersion || '—',
+      generatedAtLabel: s.generatedAtUtc ? s.generatedAtUtc.slice(0, 19) + ' UTC' : '—',
+      exportCSV: function () {
+        const header = 'date,close,proba_up,signal,next_day_return\n';
+        const body = rows.map(function (r) {
+          return [fmtDate(r.date), r.close.toFixed(2), r.probaUp.toFixed(4), r.probaUp > s.threshold ? 1 : 0, r.nextDayReturn === null ? '' : r.nextDayReturn.toFixed(4)].join(',');
+        }).join('\n');
+        const blob = new Blob([header + body], { type: 'text/csv' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = s.ticker + '_signal_history.csv'; a.click();
+      },
+
+      tickerFlashStyle: '',
+      livePriceLabel: '$' + livePrice.toFixed(2),
+      liveDeltaLabel: prevPrice ? pctSigned(delta / prevPrice) : '—',
+      liveDeltaColor: deltaColor,
+
+      notifOpen: s.notifOpen, toggleNotif: function () { self.setState(function (st) { return { notifOpen: !st.notifOpen }; }); },
+      hasAlerts: alerts.length > 0, noAlerts: alerts.length === 0,
+      alertCountLabel: alerts.length > 9 ? '9+' : String(alerts.length),
+      alerts: alerts,
+
+      themeIcon: s.theme === 'dark' ? 'ph ph-sun' : 'ph ph-moon',
+      toggleTheme: function () { self.setState(function (st) { return { theme: st.theme === 'dark' ? 'light' : 'dark' }; }); },
+
+      liveProbaLabel: (liveProba * 100).toFixed(1) + '%',
+      signalTagClass: signalOn ? 'tag tag-accent' : 'tag tag-neutral',
+      signalText: signalOn ? 'LONG' : 'FLAT',
+      liveAsOf: liveEntry.asOf || '—', gaugeDash: gaugeDash,
+      strategySharpeLabel: strategySharpe.toFixed(2), bhSharpeLabel: bhSharpe.toFixed(2),
+      meanRocAucLabel: bestModelComparison.meanRocAuc.toFixed(3),
+
+      tabs: tabs, isOverview: s.activeTab === 'overview', isBacktest: s.activeTab === 'backtest', isModel: s.activeTab === 'model',
+
+      chartTypeOptions: chartTypeOptions, timeframeOptions: timeframeOptions,
+      legendItems: legendItemsOut,
+      chartRef: this.chartRef,
+      onChartMouseMove: function (e) {
+        const idx = idxFromEvent(e); if (idx === null) return;
+        self.setState(function (st) { return { hoverIdx: idx, dragEnd: st.dragging ? idx : st.dragEnd }; });
+      },
+      onChartMouseLeave: function () { self.setState({ hoverIdx: null, dragging: false }); },
+      onChartMouseDown: function (e) { const idx = idxFromEvent(e); if (idx === null) return; self.setState({ dragging: true, dragStart: idx, dragEnd: idx }); },
+      onChartMouseUp: function () {
+        self.setState(function (st) {
+          if (st.dragging && st.dragStart !== null && st.dragEnd !== null && st.dragStart !== st.dragEnd) {
+            const a = Math.min(st.dragStart, st.dragEnd), b = Math.max(st.dragStart, st.dragEnd);
+            return { dragging: false, brushStart: start + a, brushEnd: start + b, timeframe: 'custom' };
+          }
+          return { dragging: false };
+        });
+      },
+      showDragOverlay: showDragOverlay, dragX1: dragX1, dragW: dragW, chartLineColor: chartLineColor,
+      gridLines: gridLines, xLabels: xLabels,
+      // Candles use the absolute-price geom; compare mode switches the chart to a
+      // normalized-% geom for all selected tickers, so the two can't share one
+      // chart — compare mode always wins and candles are suppressed.
+      showCandles: s.chartType === 'candle' && chartMode !== 'compare',
+      showLine: (s.chartType === 'line' || chartMode === 'compare') && s.visibleClose,
+      showCompareLines: chartMode === 'compare' && s.visibleCompare, showSignal: s.visibleSignal,
+      candles: candles, closePathD: closePathD, compareLines: compareLines, signalMarkers: signalMarkers,
+      showTooltip: showTooltip, tooltipX: tooltipX, tooltipLeft: tooltipLeft, tooltipDate: tooltipDate, tooltipClose: tooltipClose, tooltipProba: tooltipProba,
+      maxBrushIndex: N_DAYS - 1, brushStart: start, brushEnd: end,
+      onBrushStartChange: function (e) { self.setState({ brushStart: parseInt(e.target.value, 10), timeframe: 'custom' }); },
+      onBrushEndChange: function (e) { self.setState({ brushEnd: parseInt(e.target.value, 10), timeframe: 'custom' }); },
+
+      tableRowCount: visibleRows.length, tableCols: tableCols, tableRows: tableRows,
+
+      stratTotalReturn: pctSigned(bt.strategy.totalReturn), bhTotalReturn: pctSigned(bt.buyHold.totalReturn),
+      stratAnnReturn: pctSigned(bt.strategy.annReturn), bhAnnReturn: pctSigned(bt.buyHold.annReturn),
+      stratAnnVol: pct(bt.strategy.annVol), bhAnnVol: pct(bt.buyHold.annVol),
+      stratMaxDD: pct(bt.strategy.maxDD), bhMaxDD: pct(bt.buyHold.maxDD),
+      eqGridLines: eqGridLines, drawdownAreaD: drawdownAreaD, equityStratD: equityStratD, equityBhD: equityBhD, tradeRows: tradeRows,
+
+      modelCompRows: modelCompRows,
+      featureBars: featureBars,
+      confMatrix: { tp: tp, fp: fp, fn: fn, tn: tn },
+      rocCurveD: rocPts.join(' '),
+
+      rangeColor: chartLineColor,
+      rangeIcon: rangeRose ? 'ph-fill ph-trend-up' : 'ph-fill ph-trend-down',
+      rangeBg: rangeRose ? 'color-mix(in srgb, var(--color-rise) 10%, var(--color-surface))' : 'color-mix(in srgb, var(--color-fall) 10%, var(--color-surface))',
+      rangeBorder: rangeRose ? 'color-mix(in srgb, var(--color-rise) 30%, transparent)' : 'color-mix(in srgb, var(--color-fall) 30%, transparent)',
+      rangeStartDate: fmtDate(rStart.date), rangeEndDate: fmtDate(rEnd.date),
+      rangeStartPrice: '$' + rStart.close.toFixed(2), rangeEndPrice: '$' + rEnd.close.toFixed(2),
+      rangeDeltaPct: pctSigned(rangeDeltaPctVal),
+      rangeDeltaAbs: (rangeRose ? '+$' : '-$') + Math.abs(rangeDelta).toFixed(2),
+
+      pnlLabel: pnlLabel,
+      pnlUnitOptions: [{ key: 'pct', label: '%' }, { key: 'usd', label: '$' }].map(function (o) {
+        return Object.assign({}, o, { active: s.pnlUnit === o.key, onClick: function () { self.setState({ pnlUnit: o.key }); } });
+      }),
+      winRateLabel: (winRate * 100).toFixed(0) + '%',
+      winRateColor: winRate >= 0.5 ? 'var(--color-rise)' : 'var(--color-fall)',
+      winRateSub: winners + '/' + daysWithReturn.length + ' up days in range',
+    };
+  }
+}
+</script>
+</body>
+</html>
