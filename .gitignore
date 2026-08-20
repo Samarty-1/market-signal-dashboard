@@ -15,3 +15,6 @@ data/*.csv
 # Model artifacts and metrics ARE committed: the scheduled GitHub Action
 # retrains daily and commits the refreshed model/metrics, so the commit
 # history itself is evidence the pipeline runs on a real schedule.
+
+# C++ build output (cpp-data-structures/)
+cpp-data-structures/build/
