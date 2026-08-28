@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import io
+import urllib.request
 from pathlib import Path
 
 import pandas as pd
@@ -58,6 +60,54 @@ def fetch_prices(
                 "Close": "close",
                 "Volume": "volume",
             }
+        )
+        frames.append(history[["date", "ticker", "open", "high", "low", "close", "volume"]])
+
+    if not frames:
+        raise RuntimeError(f"No data returned for any of: {tickers}")
+
+    combined = pd.concat(frames, ignore_index=True)
+    combined["date"] = pd.to_datetime(combined["date"]).dt.tz_localize(None)
+    return combined.sort_values(["ticker", "date"]).reset_index(drop=True)
+
+
+def fetch_sp500_tickers() -> list[str]:
+    """S&P 500 constituent list from Wikipedia (needs a browser User-Agent,
+    Wikipedia 403s the default urllib one). Cross-sectional ML asset-pricing
+    edges come from ranking hundreds of stocks against each other (see
+    README) -- this is what widens the universe from DEFAULT_TICKERS'
+    ~30 names to that scale, still using only free data.
+    """
+    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    html = urllib.request.urlopen(req, timeout=30).read()
+    table = pd.read_html(io.BytesIO(html))[0]
+    # yfinance uses '-' where Wikipedia uses '.' for share classes (e.g. BRK.B -> BRK-B)
+    return table["Symbol"].str.replace(".", "-", regex=False).tolist()
+
+
+def fetch_universe_prices(tickers: list[str], period: str = "3y", interval: str = "1d") -> pd.DataFrame:
+    """Batched equivalent of fetch_prices() for large ticker lists (hundreds+).
+
+    fetch_prices() fetches one ticker at a time (yf.Ticker(t).history()),
+    which is fine for ~30 tickers but doesn't scale -- yf.download() with a
+    ticker list batches the requests (500 S&P tickers x 3y in ~10s locally,
+    vs. hundreds of sequential HTTP round-trips one-ticker-at-a-time).
+    Returns the same long-format columns as fetch_prices: date, ticker,
+    open, high, low, close, volume.
+    """
+    raw = yf.download(tickers, period=period, interval=interval, group_by="ticker", threads=True, progress=False, auto_adjust=True)
+
+    frames = []
+    for ticker in tickers:
+        if ticker not in raw.columns.get_level_values(0):
+            continue
+        history = raw[ticker].dropna(how="all").reset_index()
+        if history.empty:
+            continue
+        history["ticker"] = ticker
+        history = history.rename(
+            columns={"Date": "date", "Open": "open", "High": "high", "Low": "low", "Close": "close", "Volume": "volume"}
         )
         frames.append(history[["date", "ticker", "open", "high", "low", "close", "volume"]])
 

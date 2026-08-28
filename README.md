@@ -97,6 +97,155 @@ exact mistake this section is trying to avoid — an unvalidated result
 dressed up as more than it is. Flagged here as the obvious next step for
 whoever picks this up.
 
+## Cross-sectional long-short: the full investigation
+
+That flagged next step was picked up. The motivating evidence: the ML
+asset-pricing literature (Gu, Kelly & Xiu, and successors) finds individual-
+stock predictive R² is tiny (~0.3–0.4%) — but pooling that tiny edge across
+hundreds of stocks in a **long-short decile portfolio** (long the top decile
+by predicted score, short the bottom decile) turns it into a real portfolio
+Sharpe in their study (~1.35 out-of-sample). That's a structurally different
+claim from "can I predict one stock" — it's "does ranking hundreds of stocks
+against each other carry information, even if each individual prediction is
+almost worthless." This section is the honest record of testing that claim
+against this repo's own data and models, including the two dead ends before
+the real (small) answer.
+
+**Infrastructure added**: `src/data_ingestion.fetch_sp500_tickers()` /
+`fetch_universe_prices()` widen the universe from ~30 tickers to the full
+S&P 500 (503 names, batched via `yf.download()` — 9 seconds for 3 years,
+not 500 sequential requests). `src/features.py` adds momentum (21/63/126-day
+and classic "12-1 month" Jegadeesh-Titman momentum), volatility (60-day),
+and liquidity (log dollar volume, Amihud illiquidity) feature families —
+the literature's three dominant predictive families, not any single exotic
+indicator. `src/long_short_backtest.py` implements the actual portfolio
+construction and honest evaluation against an equal-weighted universe
+benchmark.
+
+### Attempt 1: naive daily rebalancing (large-cap, short window) — failed loudly
+
+First pass: full S&P 500, 3 years of data, hard top/bottom-decile
+membership recomputed from scratch every day. Result: **Sharpe -1.70**,
+losing money, while the equal-weighted universe benchmark scored **Sharpe
+2.03** over the same (unusually strong, uninterrupted bull) window.
+Decomposing why: at **zero transaction cost** the same portfolio scored
+**Sharpe +0.57** — a real signal was there. The problem was cost: daily
+full-decile rebalancing on ~50 names per leg measured **~20bps/day**
+turnover cost against a **~5bps/day** raw spread — paying away 4x the
+signal just to chase noisy day-to-day rank reshuffling.
+
+### Attempt 2: lower rebalancing frequency — looked great, failed confirmation
+
+Rebalancing less often (weekly/monthly/quarterly instead of daily) fixed
+the cost problem directly: Sharpe went daily -1.70 → weekly 0.15 → biweekly
+0.33 → monthly 0.69 → (XGBoost specifically) quarterly 1.09–1.68. That
+last number is a real trap, and it's worth showing exactly how it broke:
+searching across 3 models × several rebalance frequencies on the *same*
+~300-day test window and reporting whichever combination scored best is
+just curve-fitting with extra steps — the same mistake this repo's own
+"Honest results" section above was written to avoid, and the same one
+`dual-ma-rsi-strategy-r`'s README documents catching in its own parameter
+search. Applying that repo's own discipline here: the ~300 days of
+out-of-sample predictions were split into a **selection set** (used to pick
+model + rebalance frequency) and a **confirmation set** (never touched
+until the final check). XGBoost + monthly rebalancing scored **Sharpe 2.25**
+on the selection set. On confirmation: **Sharpe -0.63**. The "great" number
+was noise from a limited, single-regime (one uninterrupted bull run) test
+window, not a real edge — exactly what the selection/confirmation split
+exists to catch, and did.
+
+### Regime diversity, and a second confirmation failure
+
+The 3-year window was also too short to be trustworthy on its own — it
+never included a real drawdown, so the equal-weighted benchmark's Sharpe
+(~2.0) was itself an artifact of one abnormally smooth bull run. Extended
+to 10 years / 500 tickers (9 usable years after the 252-day momentum
+warm-up, spanning the 2022 bear market and 2020's aftermath, not just one
+regime) with 10 walk-forward folds, split at the midpoint into selection
+(folds 0-5) and confirmation (folds 6-9). Selection-set best (rebalance
+every 10 days): Sharpe 0.38. Confirmation: **Sharpe -0.16**. Failed again
+— a second, independent disconfirmation on a differently-constructed
+test window.
+
+### Small-cap universe: a different, more definitive failure
+
+The literature specifically flags small/micro-cap as having a *structural*
+(not just statistical) illiquidity premium — institutions can't deploy
+meaningful capital there without moving the price, so the mechanism is
+different from "large-cap noise." Tested the identical pipeline on the
+S&P 600 SmallCap universe (602 tickers, same 10-year window, more
+realistic 20bps cost for wider small-cap spreads). Result: **negative
+raw spread even at zero transaction cost**, at every rebalance frequency
+tested. This isn't a cost problem like the large-cap case — the ranking
+itself doesn't work on this universe with this feature set. A clean,
+different kind of failure, reported as such rather than glossed over.
+
+### The actual finding: alphalens confirms a real, small, un-tradeable edge
+
+Before concluding "no edge, full stop," one more check: **alphalens-reloaded**
+(industry-standard factor analysis, not a metric built for this repo) on the
+large-cap XGBoost predictions. Its Information Coefficient (Spearman rank
+correlation between predicted score and forward return) came back
+**positive at every horizon tested (1D/5D/10D/21D/63D), on both the
+selection set (0.012–0.026) and the untouched confirmation set
+(0.019–0.026)** — positive in 18 of 24 months in the confirmation window.
+This is the real result: **the ranking signal is genuine and reproduces
+out-of-sample** — it just isn't large enough to survive being turned into
+an actual costed, tradeable portfolio using a hard-decile construction.
+
+One more honest attempt followed from that diagnosis directly (not a blind
+re-search): `build_hysteresis_long_short_returns` replaces the hard decile
+cutoff with **asymmetric entry/exit thresholds** (enter the long leg only
+in the top 10%, exit only once a name falls out of the top 25% — same
+principle as `quantpulse`'s `MIN_HOLD_DAYS` fix for RL churn, applied here
+to noisy rank reshuffling instead) combined with less frequent rebalancing.
+At zero cost this scored Sharpe 0.95 on the selection set — genuinely good
+— but even hysteresis alone, checked daily, still cost ~13bps/day against
+the same ~5bps/day signal. Combined with 10-day rebalancing: selection-set
+Sharpe 0.40, and on the **untouched confirmation set: Sharpe 0.04** — not
+the outright loss of the earlier attempts, but not a real edge either.
+Essentially flat, exactly consistent with what a genuine-but-small IC
+(~0.02–0.03) should produce once realistic costs are applied.
+
+### Honest conclusion
+
+A real, statistically-confirmed cross-sectional signal exists in this
+feature set on large-cap US equities (positive IC, reproduced out-of-sample
+on data that had zero influence on any modeling decision). It is **too
+small to be a profitable market-neutral trading strategy** after realistic
+transaction costs — every construction tested (hard decile, various
+rebalance frequencies, hysteresis) that looked good on a selection set
+failed or went flat on honest confirmation, except the final hysteresis
+version, which converged to breakeven rather than a loss. That's a
+different, more informative conclusion than "found nothing" — the effect
+is real and measurable, it just isn't tradeable at this magnitude without
+either far lower transaction costs than a real account would pay, or a
+genuinely stronger source of signal than price/volume technicals alone can
+provide (see "Next steps" below).
+
+Reproduce this yourself: `python -m src.cross_sectional_long_short_pipeline
+[--universe sp500|smallcap] [--period 10y] [--model xgboost]`.
+
+### Next steps (flagged, not yet attempted)
+
+Two evidence-backed levers were identified but not built, given the time
+this investigation already took and the honest-conclusion discipline of not
+shipping another unvalidated result:
+
+- **A real, dated sentiment dataset**: [`FNSPID`](https://github.com/Zdong104/FNSPID_Financial_News_Dataset)
+  (`Zihan1004/FNSPID` on Hugging Face) has 15.7M financial news records with
+  real per-article dates for 4,775 S&P 500 companies, 1999–2023 — unlike the
+  live-only sentiment classifier in this repo's "Live headline sentiment"
+  panel (see `src/sentiment.py`), this could actually be backtested and
+  added as a genuine historical feature, since it has the dates the earlier
+  dataset lacked.
+- **Real fundamental data**: [`edgartools`](https://github.com/dgunning/edgartools)
+  (free, no API key beyond an email identifier) pulls actual SEC filings —
+  10-K/10-Q financials, insider trades, institutional holdings — back to
+  1994. Every feature tested in this investigation is price/volume-derived;
+  genuine value/quality/earnings-surprise factors are a structurally
+  different data source this repo has never touched.
+
 ## Architecture
 
 ```

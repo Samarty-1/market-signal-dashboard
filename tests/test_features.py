@@ -82,14 +82,19 @@ def test_cross_sectional_label_is_nan_where_next_day_return_is_nan():
 
 
 def test_build_feature_dataset_drops_warmup_and_last_row():
-    prices = pd.concat([_make_prices(ticker="AAA", seed=1), _make_prices(ticker="BBB", seed=2)], ignore_index=True)
+    # n=300: enough for mom_12m_skip1m's 252-day lookback plus a few usable
+    # rows after warm-up -- the old default (80) predates that feature and
+    # left both tickers entirely dropped.
+    prices = pd.concat(
+        [_make_prices(n=300, ticker="AAA", seed=1), _make_prices(n=300, ticker="BBB", seed=2)], ignore_index=True
+    )
     feats = build_feature_dataset(prices)
 
     # No NaNs remain in any required column.
     required = FEATURE_COLUMNS + ["label_next_day_up", "label_beat_median_next_day"]
     assert not feats[required].isna().any().any()
 
-    # Warm-up rows (needed for the 50-day SMA) and the final row (no label yet) are gone.
+    # Warm-up rows (needed for the 252-day momentum lookback) and the final row (no label yet) are gone.
     assert len(feats[feats["ticker"] == "AAA"]) < len(prices[prices["ticker"] == "AAA"])
 
     # Both tickers survive.

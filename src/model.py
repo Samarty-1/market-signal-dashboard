@@ -63,12 +63,14 @@ def _fold_cutoffs(dates: pd.Series, n_folds: int = N_FOLDS) -> list[pd.Timestamp
     return [pd.Timestamp(unique_dates[i]) for i in cut_points]
 
 
-def walk_forward_predictions(df: pd.DataFrame, estimator_name: str, label_column: str = LABEL_COLUMN) -> pd.DataFrame:
+def walk_forward_predictions(
+    df: pd.DataFrame, estimator_name: str, label_column: str = LABEL_COLUMN, n_folds: int = N_FOLDS
+) -> pd.DataFrame:
     """Like walk_forward_evaluate, but returns the raw out-of-sample predictions
     (one row per test-fold observation) instead of aggregated metrics. This is what
     the backtest must use — scoring the final full-data-fit model on its own
     training history would leak the future into the "past" and inflate returns."""
-    cutoffs = _fold_cutoffs(df["date"])
+    cutoffs = _fold_cutoffs(df["date"], n_folds)
     predictions = []
     for fold_idx in range(len(cutoffs) - 1):
         train_end, test_end = cutoffs[fold_idx], cutoffs[fold_idx + 1]
@@ -98,9 +100,11 @@ def walk_forward_predictions(df: pd.DataFrame, estimator_name: str, label_column
     return pd.concat(predictions, ignore_index=True).sort_values(["ticker", "date"]).reset_index(drop=True)
 
 
-def walk_forward_evaluate(df: pd.DataFrame, estimator_name: str, label_column: str = LABEL_COLUMN) -> list[dict]:
+def walk_forward_evaluate(
+    df: pd.DataFrame, estimator_name: str, label_column: str = LABEL_COLUMN, n_folds: int = N_FOLDS
+) -> list[dict]:
     """Expanding-window walk-forward validation. Returns one metrics dict per fold."""
-    cutoffs = _fold_cutoffs(df["date"])
+    cutoffs = _fold_cutoffs(df["date"], n_folds)
     fold_results = []
     for fold_idx in range(len(cutoffs) - 1):
         train_end, test_end = cutoffs[fold_idx], cutoffs[fold_idx + 1]

@@ -6,4 +6,5 @@ lightgbm>=4.3
 xgboost>=2.0
 joblib>=1.4
 datasets>=2.19
+alphalens-reloaded>=0.4
 pytest>=8.2

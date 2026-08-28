@@ -18,6 +18,23 @@ FEATURE_COLUMNS = [
     "volatility_10d",
     "volatility_20d",
     "volume_change",
+    # Added for the cross-sectional long-short pipeline: the ML asset-pricing
+    # literature (Gu/Kelly/Xiu and successors) finds momentum, liquidity, and
+    # volatility are the dominant predictive feature FAMILIES in a broad
+    # cross-section -- not any single exotic indicator. These widen those
+    # three families beyond the single-ticker technicals above.
+    "mom_21d",
+    "mom_63d",
+    "mom_126d",
+    "mom_12m_skip1m",  # classic "12-1 month" momentum (Jegadeesh-Titman): skips
+    # the most recent month specifically to avoid picking up short-term
+    # reversal, which is a different, opposite-signed effect from momentum.
+    "volatility_60d",
+    "log_dollar_volume",  # log(close * volume) -- log because raw dollar
+    # volume spans orders of magnitude across mega-cap vs. small-cap names
+    "amihud_illiquidity",  # mean(|return| / dollar_volume): price impact per
+    # dollar traded -- the standard illiquidity measure behind the small-cap
+    # illiquidity premium (see README)
 ]
 
 
@@ -64,6 +81,26 @@ def add_features_for_ticker(group: pd.DataFrame) -> pd.DataFrame:
     group["volatility_10d"] = group["return_1d"].rolling(10).std()
     group["volatility_20d"] = group["return_1d"].rolling(20).std()
     group["volume_change"] = group["volume"].pct_change(1)
+
+    # Momentum family (all causal -- pct_change/shift only look backward)
+    group["mom_21d"] = close.pct_change(21)
+    group["mom_63d"] = close.pct_change(63)
+    group["mom_126d"] = close.pct_change(126)
+    # 12-1 month: total return from 252 trading days ago to 21 trading days
+    # ago, i.e. the standard momentum window with the most recent month
+    # excluded. Computed from price levels directly (not chained pct_change
+    # calls) so it's exactly "price 21 days ago vs. price 252 days ago".
+    group["mom_12m_skip1m"] = close.shift(21) / close.shift(252) - 1
+
+    group["volatility_60d"] = group["return_1d"].rolling(60).std()
+
+    dollar_volume = close * group["volume"]
+    group["log_dollar_volume"] = np.log(dollar_volume.replace(0, np.nan))
+    # Amihud (2002) illiquidity: average of |daily return| / dollar volume
+    # over a trailing window -- how much a dollar of trading moves the
+    # price. Higher = less liquid = the small-cap illiquidity premium's
+    # standard measure.
+    group["amihud_illiquidity"] = (group["return_1d"].abs() / dollar_volume.replace(0, np.nan)).rolling(21).mean()
 
     # Label: did next day's close finish higher than today's close? The last row has
     # no "next day" yet, so it must stay NA rather than silently becoming 0 — a plain
