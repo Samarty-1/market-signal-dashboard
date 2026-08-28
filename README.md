@@ -51,6 +51,52 @@ The point of this project isn't claiming alpha — it's the pipeline: real data
 in, properly-validated model, leakage-free backtest, live dashboard, scheduled
 retraining. That combination is the part worth demonstrating.
 
+## Why the AUC is stuck at ~0.50, and the one target that actually moved it
+
+The theoretical reason next-day direction sits at 0.50 isn't a code bug —
+it's the target itself. "Will ticker X go up tomorrow" is dominated by
+whatever the *whole market* does tomorrow (SPY's own next-day direction is
+close to a coin flip too), and every ticker in the universe shares that same
+market-wide move. A model trained only on one ticker's own lagged technical
+indicators has no way to see that common component coming, so it's trying
+to predict something that's mostly noise from its vantage point.
+
+`src/features.add_cross_sectional_label` tests a different, real target
+instead: not "will this ticker go up," but **"will this ticker beat the
+day's cross-sectional median return"** (across the same ~30-ticker
+universe). This nets out the shared market-wide move and targets the
+smaller, better-documented cross-sectional relative-strength effect instead
+— the same category of effect behind short-term reversal / relative-strength
+research in the academic literature. Tested through the exact same
+leakage-free walk-forward harness (`src/model.py`), same features, same
+models, only the label changed:
+
+| Target | Best model | Mean walk-forward ROC AUC |
+|---|---|---|
+| Next-day direction (baseline) | XGBoost | 0.5014 |
+| Beat cross-sectional median (new) | XGBoost | **0.5157** |
+
+Small, but real and consistent — the cross-sectional target beat the
+baseline in **every one of the 5 walk-forward folds**, not just on average
+(fold AUCs 0.51–0.54 vs. 0.49–0.53 for baseline over the same folds). For
+context: a 5-day-ahead direction target was also tested as a hypothesis (the
+theory being that a longer horizon has less noise) and it **didn't hold up**
+— AUC came back lower (~0.49), not higher. Reporting that too, since a
+hypothesis that turns out wrong is still a result, not something to bury.
+
+This is trained and registered as a genuinely separate model
+(`models/cross_sectional/registry/`, via `python -m src.model`) alongside
+the original next-day model, shown on the dashboard's "Baseline vs.
+cross-sectional target" panel. It is **not** turned into its own backtested
+trading strategy here — predicting relative outperformance implies a
+long/short, market-neutral construction (long the top-ranked names, short
+or avoid the bottom-ranked ones) with its own cost/hedging assumptions,
+which is a different, larger scope than this repo's existing long/flat
+single-ticker backtest. Shipping that without validating it would repeat the
+exact mistake this section is trying to avoid — an unvalidated result
+dressed up as more than it is. Flagged here as the obvious next step for
+whoever picks this up.
+
 ## Architecture
 
 ```

@@ -63,7 +63,7 @@ def _fold_cutoffs(dates: pd.Series, n_folds: int = N_FOLDS) -> list[pd.Timestamp
     return [pd.Timestamp(unique_dates[i]) for i in cut_points]
 
 
-def walk_forward_predictions(df: pd.DataFrame, estimator_name: str) -> pd.DataFrame:
+def walk_forward_predictions(df: pd.DataFrame, estimator_name: str, label_column: str = LABEL_COLUMN) -> pd.DataFrame:
     """Like walk_forward_evaluate, but returns the raw out-of-sample predictions
     (one row per test-fold observation) instead of aggregated metrics. This is what
     the backtest must use — scoring the final full-data-fit model on its own
@@ -78,11 +78,11 @@ def walk_forward_predictions(df: pd.DataFrame, estimator_name: str) -> pd.DataFr
             continue
 
         pipeline = _build_pipeline(CANDIDATE_MODELS[estimator_name])
-        pipeline.fit(train[FEATURE_COLUMNS + ["ticker"]], train[LABEL_COLUMN])
+        pipeline.fit(train[FEATURE_COLUMNS + ["ticker"]], train[label_column])
         proba = pipeline.predict_proba(test[FEATURE_COLUMNS + ["ticker"]])[:, 1]
 
         fold_predictions = test[
-            ["date", "ticker", "open", "high", "low", "close", "volume", "return_1d", "next_day_return", LABEL_COLUMN]
+            ["date", "ticker", "open", "high", "low", "close", "volume", "return_1d", "next_day_return", label_column]
         ].copy()
         fold_predictions["fold"] = fold_idx
         fold_predictions["proba_up"] = proba
@@ -98,7 +98,7 @@ def walk_forward_predictions(df: pd.DataFrame, estimator_name: str) -> pd.DataFr
     return pd.concat(predictions, ignore_index=True).sort_values(["ticker", "date"]).reset_index(drop=True)
 
 
-def walk_forward_evaluate(df: pd.DataFrame, estimator_name: str) -> list[dict]:
+def walk_forward_evaluate(df: pd.DataFrame, estimator_name: str, label_column: str = LABEL_COLUMN) -> list[dict]:
     """Expanding-window walk-forward validation. Returns one metrics dict per fold."""
     cutoffs = _fold_cutoffs(df["date"])
     fold_results = []
@@ -106,11 +106,11 @@ def walk_forward_evaluate(df: pd.DataFrame, estimator_name: str) -> list[dict]:
         train_end, test_end = cutoffs[fold_idx], cutoffs[fold_idx + 1]
         train = df[df["date"] <= train_end]
         test = df[(df["date"] > train_end) & (df["date"] <= test_end)]
-        if train.empty or test.empty or test[LABEL_COLUMN].nunique() < 2:
+        if train.empty or test.empty or test[label_column].nunique() < 2:
             continue
 
         pipeline = _build_pipeline(CANDIDATE_MODELS[estimator_name])
-        pipeline.fit(train[FEATURE_COLUMNS + ["ticker"]], train[LABEL_COLUMN])
+        pipeline.fit(train[FEATURE_COLUMNS + ["ticker"]], train[label_column])
         pred = pipeline.predict(test[FEATURE_COLUMNS + ["ticker"]])
         proba = pipeline.predict_proba(test[FEATURE_COLUMNS + ["ticker"]])[:, 1]
 
@@ -121,10 +121,10 @@ def walk_forward_evaluate(df: pd.DataFrame, estimator_name: str) -> list[dict]:
                 "test_end": str(test_end.date()),
                 "n_train": int(len(train)),
                 "n_test": int(len(test)),
-                "accuracy": round(accuracy_score(test[LABEL_COLUMN], pred), 4),
-                "roc_auc": round(roc_auc_score(test[LABEL_COLUMN], proba), 4),
-                "precision": round(precision_score(test[LABEL_COLUMN], pred, zero_division=0), 4),
-                "recall": round(recall_score(test[LABEL_COLUMN], pred, zero_division=0), 4),
+                "accuracy": round(accuracy_score(test[label_column], pred), 4),
+                "roc_auc": round(roc_auc_score(test[label_column], proba), 4),
+                "precision": round(precision_score(test[label_column], pred, zero_division=0), 4),
+                "recall": round(recall_score(test[label_column], pred, zero_division=0), 4),
             }
         )
     return fold_results
@@ -135,12 +135,12 @@ def _mean_metric(fold_results: list[dict], key: str) -> float:
     return round(float(np.mean(values)), 4) if values else 0.0
 
 
-def train_and_select_best(df: pd.DataFrame) -> tuple[str, Pipeline, dict]:
+def train_and_select_best(df: pd.DataFrame, label_column: str = LABEL_COLUMN) -> tuple[str, Pipeline, dict]:
     """Runs walk-forward validation for every candidate, picks the best by mean ROC AUC,
     then refits that model on the full dataset for deployment."""
     comparison = {}
     for name in CANDIDATE_MODELS:
-        folds = walk_forward_evaluate(df, name)
+        folds = walk_forward_evaluate(df, name, label_column=label_column)
         comparison[name] = {
             "folds": folds,
             "mean_accuracy": _mean_metric(folds, "accuracy"),
@@ -151,13 +151,14 @@ def train_and_select_best(df: pd.DataFrame) -> tuple[str, Pipeline, dict]:
 
     best_name = max(comparison, key=lambda name: comparison[name]["mean_roc_auc"])
     final_pipeline = _build_pipeline(CANDIDATE_MODELS[best_name])
-    final_pipeline.fit(df[FEATURE_COLUMNS + ["ticker"]], df[LABEL_COLUMN])
+    final_pipeline.fit(df[FEATURE_COLUMNS + ["ticker"]], df[label_column])
 
     metrics = {
         "trained_at_utc": datetime.now(timezone.utc).isoformat(),
         "n_rows": int(len(df)),
         "tickers": sorted(df["ticker"].unique().tolist()),
         "best_model": best_name,
+        "label_column": label_column,
         "comparison": comparison,
     }
     return best_name, final_pipeline, metrics
@@ -194,13 +195,22 @@ def main() -> None:
     prices.to_csv(args.data_out, index=False)
 
     df = build_feature_dataset(prices)
+
     best_name, pipeline, metrics = train_and_select_best(df)
     metrics["feature_importance"] = feature_importance(best_name, pipeline)
-
     version = registry.save_version(pipeline, metrics, Path(args.models_dir))
-
     print(f"Best model: {best_name} (mean ROC AUC {metrics['comparison'][best_name]['mean_roc_auc']})")
     print(f"Saved registry version {version} under {args.models_dir}/registry/")
+
+    # Second, separately-registered model: same walk-forward harness, different
+    # target. See features.add_cross_sectional_label for why -- it's the one
+    # target tested here that beat 0.50 AUC consistently across every fold.
+    cs_label = "label_beat_median_next_day"
+    cs_best_name, cs_pipeline, cs_metrics = train_and_select_best(df, label_column=cs_label)
+    cs_metrics["feature_importance"] = feature_importance(cs_best_name, cs_pipeline)
+    cs_version = registry.save_version(cs_pipeline, cs_metrics, Path(args.models_dir) / "cross_sectional")
+    print(f"Best cross-sectional model: {cs_best_name} (mean ROC AUC {cs_metrics['comparison'][cs_best_name]['mean_roc_auc']})")
+    print(f"Saved registry version {cs_version} under {args.models_dir}/cross_sectional/registry/")
 
 
 if __name__ == "__main__":

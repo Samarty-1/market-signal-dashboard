@@ -80,11 +80,33 @@ def add_features_for_ticker(group: pd.DataFrame) -> pd.DataFrame:
     return group
 
 
+def add_cross_sectional_label(df: pd.DataFrame) -> pd.DataFrame:
+    """Label: did this ticker's next-day return beat the day's cross-sectional
+    median return (across the whole ticker universe), rather than just "up or down"?
+
+    This needs the full multi-ticker frame (not a single ticker's group like
+    add_features_for_ticker), since the median is computed across tickers on
+    each date. Motivation: next-day direction alone is dominated by market-wide
+    moves that hit every ticker together (~coin flip, see model.py docstring);
+    asking "did this one outperform its peers today" nets out that common
+    market move and targets the smaller, better-documented cross-sectional
+    relative-strength effect instead.
+    """
+    df = df.copy()
+    cs_median = df.groupby("date")["next_day_return"].transform("median")
+    label = pd.Series(pd.NA, index=df.index, dtype="Int64")
+    known = df["next_day_return"].notna() & cs_median.notna()
+    label[known] = (df.loc[known, "next_day_return"] > cs_median[known]).astype(int)
+    df["label_beat_median_next_day"] = label
+    return df
+
+
 def build_feature_dataset(prices: pd.DataFrame) -> pd.DataFrame:
     """Apply feature engineering per ticker and drop indicator warm-up / label NaN rows."""
     enriched = pd.concat(
         [add_features_for_ticker(group) for _, group in prices.groupby("ticker", sort=False)],
         ignore_index=True,
     )
-    required = FEATURE_COLUMNS + ["label_next_day_up"]
+    enriched = add_cross_sectional_label(enriched)
+    required = FEATURE_COLUMNS + ["label_next_day_up", "label_beat_median_next_day"]
     return enriched.dropna(subset=required).reset_index(drop=True)

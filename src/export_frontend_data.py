@@ -88,6 +88,26 @@ def _live_snapshot(model, tickers: list[str]) -> dict[str, dict]:
     return live
 
 
+def _cross_sectional_snapshot() -> dict | None:
+    """Honest comparison: baseline next-day-direction AUC vs the cross-sectional
+    "beat the day's median" target (see src/features.add_cross_sectional_label).
+    Reads whatever the daily retrain most recently saved -- doesn't retrain here."""
+    cs_dir = MODELS_DIR / "cross_sectional"
+    try:
+        _, cs_metrics = registry.load_latest(cs_dir)
+    except FileNotFoundError:
+        return None
+    _, base_metrics = registry.load_latest(MODELS_DIR)
+
+    return {
+        "baselineBestModel": base_metrics["best_model"],
+        "baselineMeanRocAuc": base_metrics["comparison"][base_metrics["best_model"]]["mean_roc_auc"],
+        "crossSectionalBestModel": cs_metrics["best_model"],
+        "crossSectionalMeanRocAuc": cs_metrics["comparison"][cs_metrics["best_model"]]["mean_roc_auc"],
+        "trainedAtUtc": cs_metrics["trained_at_utc"],
+    }
+
+
 def _sentiment_snapshot(tickers: list[str]) -> dict:
     """Live headline sentiment per ticker, scored by a classifier trained on the
     Hugging Face `zeroshot/twitter-financial-news-sentiment` dataset. This is
@@ -133,6 +153,7 @@ def main() -> None:
         "series": _series_rows(predictions),
         "live": _live_snapshot(model, tickers),
         "sentiment": _sentiment_snapshot(tickers),
+        "crossSectional": _cross_sectional_snapshot(),
         "modelMetrics": {
             "trainedAtUtc": metrics["trained_at_utc"],
             "nRows": metrics["n_rows"],
