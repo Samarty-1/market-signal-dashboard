@@ -21,7 +21,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src import registry
+from src import registry, sentiment
 from src.data_ingestion import fetch_prices
 from src.features import FEATURE_COLUMNS, build_feature_dataset
 
@@ -88,6 +88,37 @@ def _live_snapshot(model, tickers: list[str]) -> dict[str, dict]:
     return live
 
 
+def _sentiment_snapshot(tickers: list[str]) -> dict:
+    """Live headline sentiment per ticker, scored by a classifier trained on the
+    Hugging Face `zeroshot/twitter-financial-news-sentiment` dataset. This is
+    NOT backtested or folded into modelMetrics/live proba above -- see
+    src/sentiment.py for why (no dated historical headlines to align to
+    trading days). It's a separate, live-only read shown alongside the model."""
+    model = sentiment.load_sentiment_model()
+    per_ticker = {}
+    for ticker in tickers:
+        result = sentiment.score_ticker_sentiment(ticker, model=model)
+        per_ticker[ticker] = {
+            "score": result["sentiment_score"],
+            "label": result["label"],
+            "nHeadlines": result["n_headlines"],
+            "topHeadlines": [h["text"] for h in result["headlines"][:3]],
+        }
+
+    model_metrics = {}
+    if sentiment.METRICS_PATH.exists():
+        raw = json.loads(sentiment.METRICS_PATH.read_text())
+        model_metrics = {
+            "dataset": raw["dataset"],
+            "trainRows": raw["train_rows"],
+            "validationRows": raw["validation_rows"],
+            "validationAccuracy": raw["validation_accuracy"],
+            "validationF1Macro": raw["validation_f1_macro"],
+        }
+
+    return {"perTicker": per_ticker, "classifierMetrics": model_metrics}
+
+
 def main() -> None:
     if not BACKTEST_PREDICTIONS_PATH.exists():
         raise FileNotFoundError(f"{BACKTEST_PREDICTIONS_PATH} not found — run `python -m src.backtest` first")
@@ -101,6 +132,7 @@ def main() -> None:
         "tickers": tickers,
         "series": _series_rows(predictions),
         "live": _live_snapshot(model, tickers),
+        "sentiment": _sentiment_snapshot(tickers),
         "modelMetrics": {
             "trainedAtUtc": metrics["trained_at_utc"],
             "nRows": metrics["n_rows"],

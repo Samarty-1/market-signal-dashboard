@@ -21,6 +21,18 @@ chains the pieces that actually make up a real system:
 4. **An interactive dashboard** — a static, Nocturne-styled front end in `frontend/` (plain HTML/CSS/JS, no build step, no framework server) visualizes all of the above: a ticker compare overlay, candlestick charts, a real confusion matrix/ROC curve computed from the out-of-sample predictions, CSV export, and a live-as-of-last-export price/probability reading per ticker.
 5. **A model registry** — `src/registry.py` versions every trained model under `models/registry/<timestamp>/` with a `registry.json` pointer/history (instead of overwriting one file in place), so there's a rollback-able audit trail; old artifacts beyond the most recent 30 versions are pruned to keep the repo bounded while their metadata stays in history.
 6. **A scheduled retrain** — `.github/workflows/retrain.yml` runs the whole pipeline on a cron schedule — ingestion → model → registry → backtest → frontend data export — and commits the refreshed artifacts back to the repo, so the commit history itself is evidence this runs on a real cadence, not just once locally.
+7. **A live sentiment signal from a model trained on real Hugging Face data** — `src/sentiment.py` trains a TF-IDF + Logistic Regression classifier on Hugging Face's [`zeroshot/twitter-financial-news-sentiment`](https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentiment) dataset (9,543 train / 2,388 validation rows), then applies it live to each ticker's current Yahoo Finance headlines. It's deliberately **not** folded into the backtested price model above or its historical numbers — that dataset has no publish dates, so there's no honest way to align a headline to a specific historical trading day, and fabricating that alignment would be exactly the kind of overfitting/leakage this project's backtest section (#3) is written to avoid. See the panel at the bottom of the dashboard.
+
+## Sentiment classifier: honest results
+
+Held out on the dataset's own validation split (never seen during training):
+**83.0% accuracy, 0.773 macro F1** across 3 classes (bearish / bullish / neutral).
+That's a real, respectable number for 3-class financial sentiment — no cherry-picking
+here since it's the dataset's standard train/validation split. Applied live, it's a
+sentiment *reading*, not a validated trading signal: because the training data isn't
+dated, this hasn't been (and can't honestly be) backtested the way the price model
+was. Treat it as informational context, not an input you should assume has predictive
+value the way the walk-forward-validated model does.
 
 ## Honest results (read this before the dashboard)
 

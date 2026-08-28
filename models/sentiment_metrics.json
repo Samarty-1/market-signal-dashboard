@@ -1,0 +1,41 @@
+{
+  "trained_at": "2026-08-28T14:31:50.662159+00:00",
+  "dataset": "zeroshot/twitter-financial-news-sentiment",
+  "train_rows": 9543,
+  "validation_rows": 2388,
+  "validation_accuracy": 0.8299832495812395,
+  "validation_f1_macro": 0.7728540650004702,
+  "classification_report": {
+    "bearish": {
+      "precision": 0.670299727520436,
+      "recall": 0.7089337175792507,
+      "f1-score": 0.6890756302521008,
+      "support": 347.0
+    },
+    "bullish": {
+      "precision": 0.7280163599182005,
+      "recall": 0.7494736842105263,
+      "f1-score": 0.7385892116182573,
+      "support": 475.0
+    },
+    "neutral": {
+      "precision": 0.9007832898172323,
+      "recall": 0.8812260536398467,
+      "f1-score": 0.8908973531310523,
+      "support": 1566.0
+    },
+    "accuracy": 0.8299832495812395,
+    "macro avg": {
+      "precision": 0.7663664590852896,
+      "recall": 0.7798778184765413,
+      "f1-score": 0.7728540650004702,
+      "support": 2388.0
+    },
+    "weighted avg": {
+      "precision": 0.8329264691224967,
+      "recall": 0.8299832495812395,
+      "f1-score": 0.8312748635759545,
+      "support": 2388.0
+    }
+  }
+}

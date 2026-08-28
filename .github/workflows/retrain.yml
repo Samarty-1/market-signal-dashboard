@@ -30,6 +30,16 @@ jobs:
       - name: Run tests before touching production artifacts
         run: pytest -v
 
+      - name: Train sentiment classifier (Hugging Face data) if not already trained
+        # Trained once from a static HF dataset (zeroshot/twitter-financial-news-sentiment)
+        # -- the labeled training data doesn't change day to day, so retraining it on every
+        # scheduled run would just burn CI time for an identical model. What genuinely
+        # updates daily is the live headline scoring in export_frontend_data.py below.
+        run: |
+          if [ ! -f models/sentiment_classifier.joblib ]; then
+            python -m src.sentiment
+          fi
+
       - name: Retrain model
         run: python -m src.model
 

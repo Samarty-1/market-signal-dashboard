@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-08-28T05:31:26.361160+00:00",
+  "generatedAtUtc": "2026-08-28T14:34:06.080611+00:00",
   "tickers": [
     "AAPL",
     "AMD",
@@ -78393,149 +78393,450 @@
   },
   "live": {
     "AAPL": {
-      "price": 313.45,
-      "proba": 0.553031,
-      "asOf": "2026-08-26"
+      "price": 314.58,
+      "proba": 0.49944,
+      "asOf": "2026-08-27"
     },
     "AMD": {
-      "price": 480.93,
-      "proba": 0.473825,
-      "asOf": "2026-08-26"
+      "price": 476.67,
+      "proba": 0.50764,
+      "asOf": "2026-08-27"
     },
     "AMZN": {
-      "price": 260.28,
-      "proba": 0.509166,
-      "asOf": "2026-08-26"
+      "price": 256.26,
+      "proba": 0.542863,
+      "asOf": "2026-08-27"
     },
     "AVGO": {
-      "price": 355.59,
-      "proba": 0.539903,
-      "asOf": "2026-08-26"
+      "price": 371.54,
+      "proba": 0.620504,
+      "asOf": "2026-08-27"
     },
     "BA": {
-      "price": 212.09,
-      "proba": 0.47946,
-      "asOf": "2026-08-26"
+      "price": 209.89,
+      "proba": 0.506158,
+      "asOf": "2026-08-27"
     },
     "BAC": {
-      "price": 62.23,
-      "proba": 0.499848,
-      "asOf": "2026-08-26"
+      "price": 61.17,
+      "proba": 0.503562,
+      "asOf": "2026-08-27"
     },
     "CAT": {
-      "price": 821.93,
-      "proba": 0.512539,
-      "asOf": "2026-08-26"
+      "price": 817.0,
+      "proba": 0.51161,
+      "asOf": "2026-08-27"
     },
     "CVX": {
-      "price": 200.21,
-      "proba": 0.572598,
-      "asOf": "2026-08-26"
+      "price": 199.77,
+      "proba": 0.622873,
+      "asOf": "2026-08-27"
     },
     "DIA": {
-      "price": 534.23,
-      "proba": 0.640787,
-      "asOf": "2026-08-26"
+      "price": 535.22,
+      "proba": 0.556345,
+      "asOf": "2026-08-27"
     },
     "DIS": {
-      "price": 109.63,
-      "proba": 0.598592,
-      "asOf": "2026-08-26"
+      "price": 106.82,
+      "proba": 0.576457,
+      "asOf": "2026-08-27"
     },
     "GOOGL": {
-      "price": 342.0,
-      "proba": 0.518858,
-      "asOf": "2026-08-26"
+      "price": 340.65,
+      "proba": 0.482239,
+      "asOf": "2026-08-27"
     },
     "GS": {
-      "price": 1040.46,
-      "proba": 0.522705,
-      "asOf": "2026-08-26"
+      "price": 1040.87,
+      "proba": 0.467583,
+      "asOf": "2026-08-27"
     },
     "IWM": {
-      "price": 298.93,
-      "proba": 0.546948,
-      "asOf": "2026-08-26"
+      "price": 299.81,
+      "proba": 0.518489,
+      "asOf": "2026-08-27"
     },
     "JNJ": {
-      "price": 270.0,
-      "proba": 0.489078,
-      "asOf": "2026-08-26"
+      "price": 265.77,
+      "proba": 0.537401,
+      "asOf": "2026-08-27"
     },
     "JPM": {
-      "price": 356.5,
-      "proba": 0.524478,
-      "asOf": "2026-08-26"
+      "price": 354.22,
+      "proba": 0.498319,
+      "asOf": "2026-08-27"
     },
     "KO": {
-      "price": 90.08,
-      "proba": 0.533676,
-      "asOf": "2026-08-26"
+      "price": 89.06,
+      "proba": 0.532139,
+      "asOf": "2026-08-27"
     },
     "MCD": {
-      "price": 266.93,
-      "proba": 0.51185,
-      "asOf": "2026-08-26"
+      "price": 260.06,
+      "proba": 0.529362,
+      "asOf": "2026-08-27"
     },
     "META": {
-      "price": 576.14,
-      "proba": 0.507374,
-      "asOf": "2026-08-26"
+      "price": 571.1,
+      "proba": 0.657919,
+      "asOf": "2026-08-27"
     },
     "MSFT": {
-      "price": 496.37,
-      "proba": 0.64651,
-      "asOf": "2026-08-26"
+      "price": 505.06,
+      "proba": 0.507667,
+      "asOf": "2026-08-27"
     },
     "NFLX": {
-      "price": 81.46,
-      "proba": 0.540916,
-      "asOf": "2026-08-26"
+      "price": 79.84,
+      "proba": 0.494107,
+      "asOf": "2026-08-27"
     },
     "NVDA": {
-      "price": 209.66,
-      "proba": 0.568961,
-      "asOf": "2026-08-26"
+      "price": 227.98,
+      "proba": 0.583821,
+      "asOf": "2026-08-27"
     },
     "PFE": {
-      "price": 28.3,
-      "proba": 0.569596,
-      "asOf": "2026-08-26"
+      "price": 28.02,
+      "proba": 0.529692,
+      "asOf": "2026-08-27"
     },
     "PG": {
-      "price": 145.0,
-      "proba": 0.471615,
-      "asOf": "2026-08-26"
+      "price": 143.14,
+      "proba": 0.532097,
+      "asOf": "2026-08-27"
     },
     "QQQ": {
-      "price": 711.37,
-      "proba": 0.609855,
-      "asOf": "2026-08-26"
+      "price": 721.11,
+      "proba": 0.604518,
+      "asOf": "2026-08-27"
     },
     "SPY": {
-      "price": 766.08,
-      "proba": 0.604423,
-      "asOf": "2026-08-26"
+      "price": 771.1,
+      "proba": 0.494021,
+      "asOf": "2026-08-27"
     },
     "TSLA": {
-      "price": 345.82,
-      "proba": 0.561047,
-      "asOf": "2026-08-26"
+      "price": 354.81,
+      "proba": 0.461186,
+      "asOf": "2026-08-27"
     },
     "UNH": {
-      "price": 401.01,
-      "proba": 0.503781,
-      "asOf": "2026-08-26"
+      "price": 395.05,
+      "proba": 0.532047,
+      "asOf": "2026-08-27"
     },
     "WMT": {
-      "price": 104.34,
-      "proba": 0.525858,
-      "asOf": "2026-08-26"
+      "price": 102.63,
+      "proba": 0.548381,
+      "asOf": "2026-08-27"
     },
     "XOM": {
-      "price": 158.19,
-      "proba": 0.559701,
-      "asOf": "2026-08-26"
+      "price": 156.44,
+      "proba": 0.521315,
+      "asOf": "2026-08-27"
+    }
+  },
+  "sentiment": {
+    "perTicker": {
+      "AAPL": {
+        "score": 0.12334124649949403,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Tim Cook's biggest hits and misses as Apple CEO",
+          "Apple (AAPL) Brings Emergency SOS Live Video To Brazil",
+          "Will Nvidia or Apple Have The Bigger Market Cap By The End of Q3?"
+        ]
+      },
+      "AMD": {
+        "score": 0.17954152173752597,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Marvell Falls 7% as Google AI Payoff Lands in Fiscal 2029, Intel Slips, NVIDIA Barely Budges",
+          "Nvidia May Have Just Eliminated Its Biggest Risk",
+          "Cathie Wood Just Sold Another $18 Million of AMD Stock"
+        ]
+      },
+      "AMZN": {
+        "score": 0.06130741378260953,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Just received a settlement? Here are 5 smart ways to use the money.",
+          "Nvidia's relationship with SpaceX is deepening",
+          "Should IDCC Stock Be in Your Portfolio After Solid Q2 Results?"
+        ]
+      },
+      "AVGO": {
+        "score": 0.034678562387467485,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Does Nvidia or Broadcom Have The Greater Core Vulnerability?",
+          "What Makes Marvell Technology So Irresistible Now",
+          "AI Chips Today - AI and 5G Transforming the Semiconductor Industry"
+        ]
+      },
+      "BA": {
+        "score": 0.018270455305075504,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "BA vs. GD: Which Defense Contractor Has Stronger Growth Prospects?",
+          "GE Aerospace's LEAP Engine Deliveries Jumped 41% This Year. Here's Why Boeing and Airbus Both Need That Number to Keep Climbing.",
+          "Boeing lands $131 billion deal, but Americans should read the fine print"
+        ]
+      },
+      "BAC": {
+        "score": 0.07947776031142643,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "1 S&P 500 Stock with Promising Prospects and 2 Facing Challenges",
+          "Step Aside, Coca-Cola and Bank of America: There's a New Apple of Berkshire Hathaway's Eye, and It's a Virtual Monopoly",
+          "Bank Of America (BAC) Joins Clash Over Fed GSIB Capital Rule"
+        ]
+      },
+      "CAT": {
+        "score": -0.009060647775941887,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Jim Cramer Was Left Frustrated By Deere & Company (NYSE:DE)\u2019s Share Price Rise",
+          "Caterpillar (CAT)\u2019s Dividend Case Is Stronger in 2026, But the Yield is Holding it Back",
+          "2 Reasons to Like CAT and 1 to Stay Skeptical"
+        ]
+      },
+      "CVX": {
+        "score": 0.18041130948718978,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Chevron or PepsiCo: Whose Dividend Is Standing on Thinner Ice?",
+          "Chevron, Other U.S. Firms Near Deal to Invest Billions in Venezuelan Oil Fields",
+          "Market Chatter: Meta, Other Companies Brace for Democratic Scrutiny Over Trump Ties"
+        ]
+      },
+      "DIA": {
+        "score": -0.15660905387617,
+        "label": "bearish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Mohamed El-Erian Says Kevin Warsh Faces Jackson Hole Balancing Act Between \u2018Reaction Function\u2019 And \u2018Original Secular Spirit\u2019",
+          "S&P 500, Dow, Nasdaq Futures Rangebound As Investors Await Nvidia Earnings, Key Inflation Reading \u2014 MRNA, SPCX, PSKY, OpenAI In Focus",
+          "S&P 500, Nasdaq End Lower On Chipmaker Weakness, While Traders Position For Nvidia Earnings This Week \u2014 AVGO, INTC, BE, NVDA, PSKY In Focus"
+        ]
+      },
+      "DIS": {
+        "score": -0.06129300302657061,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Walt Disney vs. Netflix: Evaluating Massive Overall Business Scale Versus Consistent Double-Digit Growth in Revenue",
+          "NFLX Has Bounced From This Price Before. Now What?",
+          "Summer Blockbusters Are Filling Movie Theaters. Here\u2019s Who\u2019s Cashing In."
+        ]
+      },
+      "GOOGL": {
+        "score": 0.12723769210864183,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Is AI's 'capex tsunami' the catalyst for the next big credit boom?",
+          "How tokenization benefits SpaceX stock 'without taking crypto risk'",
+          "A Union Just Delayed Alphabet (GOOGL) Google\u2019s $10 Million Purchase of a Bankrupt Airline\u2019s Data"
+        ]
+      },
+      "GS": {
+        "score": 0.10556020727398634,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Goldman Sachs Sees Trouble for Marvell Stock Rally",
+          "Should Goldman Sachs ActiveBeta U.S. Large Cap Equity ETF (GSLC) Be on Your Investing Radar?",
+          "The Zacks Analyst Blog Highlights The Goldman Sachs, TotalEnergies, Prologis, Gencor and Ohio Valley"
+        ]
+      },
+      "IWM": {
+        "score": 0.09556171375351535,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Exchange-Traded Funds, Equity Futures Mixed Pre-Bell Friday Ahead of Warsh Speech",
+          "Exchange-Traded Funds Higher, Equity Futures Mixed Pre-Bell Thursday Ahead of Fed's Jackson Hole Symposium",
+          "Exchange-Traded Funds Lower, Equity Futures Mixed Pre-Bell Wednesday Amid Inflation Data Release"
+        ]
+      },
+      "JNJ": {
+        "score": 0.03882928971701079,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Warren Buffett Thinks Investors Are \"Gambling\" Right Now. Here are 2 Stocks That Should Be Safe Bets.",
+          "Cashing Out a Pension or Taking the Monthly Check? The Dividend Answer for a $610,000 Lump Sum",
+          "What a $1.55 Million Portfolio Actually Pays After Taxes, Medicare Premiums, and Reality"
+        ]
+      },
+      "JPM": {
+        "score": 0.029712488421668543,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "I'm 61 and have been laid off before I'm ready to retire - what can I do?",
+          "Social Security hired a \u2018special\u2019 new employee to make big changes \u2014 and he\u2019ll work for free. Here\u2019s what could change",
+          "JPMorgan (JPM) Stock Trades At A Fair Earnings Premium With A 27% Intrinsic Discount"
+        ]
+      },
+      "KO": {
+        "score": 0.25614983592737517,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Is Coca-Cola a good long-term investment? Its buy-and-hold prospects explained",
+          "Cashing Out a Pension or Taking the Monthly Check? The Dividend Answer for a $610,000 Lump Sum",
+          "What a $1.55 Million Portfolio Actually Pays After Taxes, Medicare Premiums, and Reality"
+        ]
+      },
+      "MCD": {
+        "score": 0.11841911824655356,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "McDonald's Makes Major Menu Move as Shares Struggle",
+          "Why Did NKE, NIO, MCD Stocks Plunge To 52-Week Lows Today?",
+          "McDonald's vs. Domino's: Which Stock Has Better Growth Prospects?"
+        ]
+      },
+      "META": {
+        "score": 0.2934029644513966,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "The End Of The Unregulated Attention Economy",
+          "Meta Stock Could Have 50% Upside. Here\u2019s the Bull Case",
+          "Market Chatter: Meta, Other Companies Brace for Democratic Scrutiny Over Trump Ties"
+        ]
+      },
+      "MSFT": {
+        "score": 0.08227435988862337,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Elon Musk Thinks SpaceX Can Hit $3.5 Trillion in Revenue. Wall Street Isn\u2019t Buying It.",
+          "IREN Q4 Earnings Call Focuses on AI Cloud Scale & Funding",
+          "Microsoft (MSFT) Just Flashed Golden Cross Signal: Do You Buy?"
+        ]
+      },
+      "NFLX": {
+        "score": -0.09952780154995912,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Jim Cramer Just Called a Stock Down Nearly 30% This Year \u2018Ridiculously Cheap\u2019",
+          "Walt Disney vs. Netflix: Evaluating Massive Overall Business Scale Versus Consistent Double-Digit Growth in Revenue",
+          "Netflix embraces traditional telly as streaming revolution dries up"
+        ]
+      },
+      "NVDA": {
+        "score": 0.21982517675832516,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "AI lobbying gains new foothold with Nvidia PAC ahead of midterm elections",
+          "Inside Nvidia and SpaceX\u2019s growing relationship",
+          "Nvidia's relationship with SpaceX is deepening"
+        ]
+      },
+      "PFE": {
+        "score": 0.1143501252951354,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "2 Cash-Producing Stocks with Solid Fundamentals and 1 We Turn Down",
+          "Paramount Turns to a Heavy-Hitting Lawyer Who Likes Tough Clients",
+          "Alnylam stock drops on rival heart trial: Why analysts see core business safe"
+        ]
+      },
+      "PG": {
+        "score": 0.01233804976757196,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Cashing Out a Pension or Taking the Monthly Check? The Dividend Answer for a $610,000 Lump Sum",
+          "What a $1.55 Million Portfolio Actually Pays After Taxes, Medicare Premiums, and Reality",
+          "This $1.75 Million Portfolio Pays $10,200 a Month From Three Income Buckets"
+        ]
+      },
+      "QQQ": {
+        "score": 0.30323596566578526,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Marvell Falls 7% as Google AI Payoff Lands in Fiscal 2029, Intel Slips, NVIDIA Barely Budges",
+          "Exchange-Traded Funds, Equity Futures Mixed Pre-Bell Friday Ahead of Warsh Speech",
+          "Zacks Investment Ideas feature highlights: QQQ, NVIDIA, CoreWeave, Nebius, TeraWulf, Cipher and IREN"
+        ]
+      },
+      "SPY": {
+        "score": 0.34764363283225563,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "SentinelOne Slides 8% as Trimmed Profit Forecast Outweighs Revenue Beat, CrowdStrike Declines 7%",
+          "Klarna Rallies 6%, Sezzle Gains 2% as Buy Now Pay Later Relief Trade Broadens, Affirm Jumps 10%",
+          "Gap Spikes 15% as Raised Profit Outlook Overrides Trimmed Sales Forecast, Abercrombie & Fitch Ticks Up"
+        ]
+      },
+      "TSLA": {
+        "score": 0.3058383627075128,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Tesla Stock Has Trailed the S&P 500 for 5 Years. There Are 3 Reasons Why.",
+          "BYD Global Push Finally Delivers; Profits Rise For First Time Since 2025",
+          "Tesla and Uber Won Robotaxi Permits\u2014Why Citizens Kept Both Ratings Unchanged"
+        ]
+      },
+      "UNH": {
+        "score": 0.09750420539239048,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "2 Mega-Cap Stocks Worth Investigating and 1 Facing Headwinds",
+          "Market Chatter: Meta, Other Companies Brace for Democratic Scrutiny Over Trump Ties",
+          "Can a $68 Billion Payout Save UNH Stock?"
+        ]
+      },
+      "WMT": {
+        "score": 0.10512277762120321,
+        "label": "neutral",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "Walmart vs. Costco: Which Dividend Growth Stock Is the Smarter Buy for the Rest of 2026?",
+          "2 Mega-Cap Stocks Worth Investigating and 1 Facing Headwinds",
+          "Consumers Look to Congress for Relief as Companies Cash Tariff Refund Checks"
+        ]
+      },
+      "XOM": {
+        "score": 0.27693614617709605,
+        "label": "bullish",
+        "nHeadlines": 10,
+        "topHeadlines": [
+          "1 Mega-Cap Stock to Own for Decades and 2 We Turn Down",
+          "Cashing Out a Pension or Taking the Monthly Check? The Dividend Answer for a $610,000 Lump Sum",
+          "Morgan Stanley sees SpaceX $100B Louisiana site as unpriced orbital AI catalyst"
+        ]
+      }
+    },
+    "classifierMetrics": {
+      "dataset": "zeroshot/twitter-financial-news-sentiment",
+      "trainRows": 9543,
+      "validationRows": 2388,
+      "validationAccuracy": 0.8299832495812395,
+      "validationF1Macro": 0.7728540650004702
     }
   },
   "modelMetrics": {

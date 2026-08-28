@@ -1158,5 +1158,86 @@ class Component extends DCLogic {
   }
 }
 </script>
+
+<!--
+  Live headline sentiment panel. Deliberately a plain, self-contained block
+  (its own fetch, its own render) rather than wired into the <x-dc> app above
+  -- it reads the same dashboard_data.json bundle but is an independent
+  feature, not part of the backtested price model, so it stays out of that
+  app's state machine. See src/sentiment.py for how the classifier backing
+  this was trained (Hugging Face zeroshot/twitter-financial-news-sentiment)
+  and why this is live-only rather than historical.
+-->
+<section id="hf-sentiment-panel" style="max-width:1100px;margin:32px auto;padding:0 24px;font-family:'Inter',system-ui,sans-serif;color:#e9e9ed;">
+  <div style="background:#232532;border:1px solid color-mix(in srgb, #e9e9ed 16%, transparent);border-radius:12px;padding:20px 24px;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+      <h2 style="margin:0;font-size:18px;font-weight:500;">Live headline sentiment</h2>
+      <span id="hf-sentiment-meta" style="font-size:12px;color:#9397ab;"></span>
+    </div>
+    <p style="margin:4px 0 16px;font-size:13px;color:#9397ab;">
+      Classifier trained on Hugging Face's
+      <a href="https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentiment" target="_blank" rel="noopener" style="color:#968ae0;">zeroshot/twitter-financial-news-sentiment</a>
+      dataset, scored live against each ticker's current news. Not backtested and not part of the price model above
+      &mdash; the training data has no dates to align to historical trading days, so this is a live-only signal.
+    </p>
+    <div id="hf-sentiment-table" style="overflow-x:auto;">
+      <p style="color:#75798c;font-size:13px;">Loading sentiment data&hellip;</p>
+    </div>
+  </div>
+</section>
+<script>
+(function () {
+  function labelColor(label) {
+    if (label === 'bullish') return '#7fd99a';
+    if (label === 'bearish') return '#e08a8a';
+    return '#b2b6ca';
+  }
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  fetch('./data/dashboard_data.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      const sentiment = data.sentiment;
+      const tableEl = document.getElementById('hf-sentiment-table');
+      const metaEl = document.getElementById('hf-sentiment-meta');
+      if (!sentiment || !sentiment.perTicker) {
+        tableEl.innerHTML = '<p style="color:#75798c;font-size:13px;">No sentiment data in this export yet.</p>';
+        return;
+      }
+      const m = sentiment.classifierMetrics || {};
+      if (m.validationAccuracy !== undefined) {
+        metaEl.textContent = 'val. accuracy ' + (m.validationAccuracy * 100).toFixed(1) + '% · val. F1 (macro) ' + m.validationF1Macro.toFixed(3) + ' · trained on ' + m.trainRows + ' rows';
+      }
+      const tickers = Object.keys(sentiment.perTicker).sort();
+      let html = '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+      html += '<thead><tr style="text-align:left;color:#9397ab;border-bottom:1px solid color-mix(in srgb, #e9e9ed 16%, transparent);">' +
+        '<th style="padding:8px 12px 8px 0;">Ticker</th><th style="padding:8px 12px;">Sentiment</th>' +
+        '<th style="padding:8px 12px;">Score</th><th style="padding:8px 12px;"># headlines</th>' +
+        '<th style="padding:8px 0;">Top headline</th></tr></thead><tbody>';
+      tickers.forEach(function (t) {
+        const row = sentiment.perTicker[t];
+        const color = labelColor(row.label);
+        const scoreStr = row.score === null || row.score === undefined ? '—' : row.score.toFixed(2);
+        const headline = row.topHeadlines && row.topHeadlines.length ? row.topHeadlines[0] : '—';
+        html += '<tr style="border-bottom:1px solid color-mix(in srgb, #e9e9ed 8%, transparent);">' +
+          '<td style="padding:8px 12px 8px 0;font-weight:500;">' + escapeHtml(t) + '</td>' +
+          '<td style="padding:8px 12px;color:' + color + ';text-transform:capitalize;">' + escapeHtml(row.label) + '</td>' +
+          '<td style="padding:8px 12px;color:' + color + ';">' + scoreStr + '</td>' +
+          '<td style="padding:8px 12px;color:#9397ab;">' + row.nHeadlines + '</td>' +
+          '<td style="padding:8px 0;color:#cfd3e5;max-width:420px;">' + escapeHtml(headline) + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+      tableEl.innerHTML = html;
+    })
+    .catch(function () {
+      document.getElementById('hf-sentiment-table').innerHTML =
+        '<p style="color:#e08a8a;font-size:13px;">Could not load dashboard_data.json.</p>';
+    });
+})();
+</script>
 </body>
 </html>
