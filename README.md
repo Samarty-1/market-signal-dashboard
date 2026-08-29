@@ -209,6 +209,11 @@ Essentially flat, exactly consistent with what a genuine-but-small IC
 
 ### Honest conclusion
 
+> **Superseded — read the next section.** The conclusion below blamed the
+> signal for a failure that was actually in the portfolio construction. It is
+> kept unedited because the reasoning that led to it, and the specific way it
+> was wrong, are the useful part.
+
 A real, statistically-confirmed cross-sectional signal exists in this
 feature set on large-cap US equities (positive IC, reproduced out-of-sample
 on data that had zero influence on any modeling decision). It is **too
@@ -225,6 +230,87 @@ provide (see "Next steps" below).
 
 Reproduce this yourself: `python -m src.cross_sectional_long_short_pipeline
 [--universe sp500|smallcap] [--period 10y] [--model xgboost]`.
+
+## Revisiting that conclusion: it was the construction, not the signal
+
+The conclusion above — "the edge is real but too small to trade" — turned out
+to be wrong, and wrong in an instructive way. It attributed the failure to the
+*signal* when the failure was in the *portfolio construction*. Re-examined on
+the S&P 500 over 2015–2026 (12 years, 500 names, 1.33M rows, spanning COVID and
+the 2022 bear market), with all design decisions made on data through 2022 and
+2023–2026 held back untouched:
+
+**The signal was never the bottleneck.** The same predictions that produced
+Sharpe −1.70 scored ICIR 2.33 and a zero-cost quintile-spread Sharpe of 1.66.
+A signal that good is not "too small to trade." The measured problem was
+arithmetic: the hard-decile book earned ~4.5bps/day of spread and paid
+~12bps/day in turnover.
+
+Three things were paying that bill, none of them the model:
+
+1. **A hard decile cutoff turns an infinitesimal rank change into a full round
+   trip.** A name drifting from 50th to 51st place was sold outright. With a
+   noisy daily signal that is most of the turnover, and it buys nothing.
+2. **Turnover was measured in names, not dollars.** `symmetric_difference` on
+   ticker sets ignores position size, so the cost model itself was the wrong
+   shape for the thing being charged.
+3. **A 1-day prediction horizon forces daily re-trading.** Nothing about the
+   alpha required holding for one day; the horizon was inherited from the
+   original next-day-direction framing.
+
+`src/portfolio_construction.py` replaces the construction with continuous
+cross-sectional rank weights (a small rank change moves a small amount of
+money), an EMA on the target weights, and a no-trade band, charging cost on
+actual dollars traded. **Same model, same features, same data — only the
+construction changed:**
+
+| Book (2023–2026, untouched) | Gross Sh | Net Sh | Net ret | Max DD | Turnover/day |
+|---|---|---|---|---|---|
+| Hard decile, daily rebalance (previous) | +1.23 | **−1.98** | −18.6% | −53.1% | 1.22 |
+| Rank weights + EMA-42 + band | +1.70 | **+1.63** | +8.0% | −5.0% | 0.013 |
+
+Net Sharpe −1.98 → +1.63, drawdown −53% → −5%, turnover cut ~95×. It is
+positive in every one of the four confirmation years (+2.36, +2.18, +1.19,
++1.22) where the previous construction was negative in all nine years tested.
+It is also insensitive to the cost assumption — net Sharpe +1.67 at 5bps and
++1.50 at 30bps — because once turnover is this low, cost stops being the
+binding constraint. That insensitivity is the real tell that the original
+diagnosis was misattributed.
+
+### The part that is a risk premium, not skill
+
+Reporting the headline number alone would repeat this repo's own favourite
+mistake, so `decompose_signal()` splits each score causally into the part that
+is always there and the part that moves:
+
+    static(t, i) = mean(score(s, i) for s < t)    persistent per-name tilt
+    timing(t, i) = score(t, i) - static(t, i)     live deviation from normal
+
+On the confirmation set the `static` book scores **+1.50 net Sharpe with
+essentially zero turnover** (0.0003/day) — a portfolio that stands still. Its
+exposures are long illiquid / high-volatility / small and short liquid /
+low-volatility / large: that is a well-known **risk premium being harvested,
+not evidence the model can time anything**, and its cost is flattered by a
+10bps assumption that real illiquid names would not honour.
+
+The `timing` book — tilt-free by construction — scores **+0.92 net Sharpe** on
+the confirmation set, positive in all four confirmation years. That is the
+honest measure of stock-selection skill here, and it is the number to quote if
+only one is quoted.
+
+This was found by testing it, not assumed: an earlier version of the fix
+reached net Sharpe 0.98 on the development set, but a frozen portfolio with no
+live signal at all scored 0.95 over the same window. That 0.03 gap is what
+prompted the decomposition. Two hypotheses that sounded right were also
+falsified along the way and are worth recording: cross-sectional rank
+normalisation of the features (the Gu/Kelly/Xiu standard) *lowered* IC from
+0.0209 to 0.0164, and cross-sectional z-scoring lowered it further — at a
+1-day horizon the magnitude of a move is most of the signal, and both
+transforms discard it. The literature's preprocessing is right for monthly
+fundamental characteristics and wrong here.
+
+Reproduce: `python -m research.confirm` (final numbers),
+`python -m research.sensitivity` (cost and year-by-year robustness).
 
 ### Next steps (flagged, not yet attempted)
 
