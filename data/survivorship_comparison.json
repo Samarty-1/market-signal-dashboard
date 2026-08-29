@@ -1,0 +1,117 @@
+{
+  "biased": {
+    "n_days": 300,
+    "n_benchmark_days": 300,
+    "long_short": {
+      "total_return": 0.3751,
+      "annualized_return": 0.3068,
+      "annualized_vol": 0.2184,
+      "sharpe": 1.3348,
+      "max_drawdown": -0.1994
+    },
+    "universe_equal_weight": {
+      "total_return": 0.3178,
+      "annualized_return": 0.2608,
+      "annualized_vol": 0.1153,
+      "sharpe": 2.0683,
+      "max_drawdown": -0.0762
+    },
+    "mean_n_universe": 496.4,
+    "mean_n_long": 65.7,
+    "mean_n_short": 66.2
+  },
+  "point_in_time": {
+    "n_days": 300,
+    "n_benchmark_days": 300,
+    "long_short": {
+      "total_return": 0.136,
+      "annualized_return": 0.113,
+      "annualized_vol": 0.2305,
+      "sharpe": 0.58,
+      "max_drawdown": -0.2389
+    },
+    "universe_equal_weight": {
+      "total_return": 0.2689,
+      "annualized_return": 0.2215,
+      "annualized_vol": 0.1151,
+      "sharpe": 1.7955,
+      "max_drawdown": -0.0778
+    },
+    "mean_n_universe": 492.0,
+    "mean_n_long": 65.6,
+    "mean_n_short": 63.5
+  },
+  "coverage": {
+    "n_ever_members": 610,
+    "n_with_price_data": 560,
+    "n_missing_price_data": 50,
+    "pct_missing": 8.2,
+    "n_current_members": 503,
+    "n_left_index_during_window": 107,
+    "missing_tickers": [
+      "ABC",
+      "ABMD",
+      "ANSS",
+      "ANTM",
+      "ATVI",
+      "BK",
+      "BLL",
+      "CDAY",
+      "CERN",
+      "CMA",
+      "COG",
+      "CTLT",
+      "CTRA",
+      "CTXS",
+      "DAY",
+      "DFS",
+      "DISCA",
+      "DISCK",
+      "DISH",
+      "DRE",
+      "FBHS",
+      "FI",
+      "FLT",
+      "FRC",
+      "GPS",
+      "HBI",
+      "HES",
+      "HOLX",
+      "IPG",
+      "JNPR",
+      "K",
+      "KSU",
+      "MMC",
+      "MRO",
+      "NLOK",
+      "NLSN",
+      "PBCT",
+      "PEAK",
+      "PKI",
+      "PXD",
+      "RE",
+      "SATS",
+      "SEE",
+      "SIVB",
+      "TWTR",
+      "VIAC",
+      "WBA",
+      "WLTW",
+      "WRK",
+      "XLNX"
+    ]
+  },
+  "recycled_dropped": [
+    "FB",
+    "FERG",
+    "INFO",
+    "RDDT",
+    "SBNY",
+    "VMRK"
+  ],
+  "config": {
+    "model": "xgboost",
+    "n_folds": 10,
+    "cost_bps": 10.0
+  }
+}

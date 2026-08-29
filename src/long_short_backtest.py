@@ -221,7 +221,18 @@ def _evaluate_daily(daily: pd.DataFrame, predictions: pd.DataFrame) -> dict:
     long-short portfolio's performance vs. an equal-weighted buy-and-hold of
     the same universe (not the S&P index -- keeps this an apples-to-apples
     "does the ranking add anything beyond just holding the universe"
-    comparison)."""
+    comparison).
+
+    The benchmark is restricted to the dates the strategy actually traded.
+    Both builders skip days (too few names to fill a decile, an empty leg
+    after hysteresis), so scoring the strategy over its own subset of dates
+    while scoring the benchmark over *every* prediction date compares two
+    different holding periods -- total_return over 2,300 benchmark days
+    against 1,900 strategy days is not a comparison, and the annualization in
+    performance_metrics divides by a different n_days for each. Aligning the
+    date sets is what makes the headline "does the ranking beat just holding
+    the universe" claim mean anything.
+    """
     if daily.empty:
         return {
             "n_days": 0,
@@ -229,10 +240,17 @@ def _evaluate_daily(daily: pd.DataFrame, predictions: pd.DataFrame) -> dict:
             "universe_equal_weight": performance_metrics(pd.Series(dtype=float)),
         }
 
-    universe = predictions.dropna(subset=["next_day_return"]).groupby("date")["next_day_return"].mean()
+    traded_dates = set(daily["date"])
+    universe = (
+        predictions.dropna(subset=["next_day_return"])
+        .groupby("date")["next_day_return"]
+        .mean()
+    )
+    universe = universe[universe.index.isin(traded_dates)]
 
     return {
         "n_days": int(len(daily)),
+        "n_benchmark_days": int(len(universe)),
         "long_short": performance_metrics(daily.set_index("date")["long_short_return"]),
         "universe_equal_weight": performance_metrics(universe),
         "mean_n_universe": round(float(daily["n_universe"].mean()), 1),
