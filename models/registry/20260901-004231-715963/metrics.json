@@ -1,0 +1,312 @@
+{
+  "trained_at_utc": "2026-09-01T00:42:31.714363+00:00",
+  "n_rows": 7163,
+  "tickers": [
+    "AAPL",
+    "AMD",
+    "AMZN",
+    "AVGO",
+    "BA",
+    "BAC",
+    "CAT",
+    "CVX",
+    "DIA",
+    "DIS",
+    "GOOGL",
+    "GS",
+    "IWM",
+    "JNJ",
+    "JPM",
+    "KO",
+    "MCD",
+    "META",
+    "MSFT",
+    "NFLX",
+    "NVDA",
+    "PFE",
+    "PG",
+    "QQQ",
+    "SPY",
+    "TSLA",
+    "UNH",
+    "WMT",
+    "XOM"
+  ],
+  "best_model": "xgboost",
+  "label_column": "label_next_day_up",
+  "comparison": {
+    "logistic_regression": {
+      "folds": [
+        {
+          "fold": 0,
+          "train_end": "2026-01-27",
+          "test_end": "2026-03-10",
+          "n_train": 2871,
+          "n_test": 841,
+          "accuracy": 0.4697,
+          "roc_auc": 0.4751,
+          "precision": 0.477,
+          "recall": 0.6429
+        },
+        {
+          "fold": 1,
+          "train_end": "2026-03-10",
+          "test_end": "2026-04-22",
+          "n_train": 3712,
+          "n_test": 870,
+          "accuracy": 0.4989,
+          "roc_auc": 0.4921,
+          "precision": 0.5478,
+          "recall": 0.5682
+        },
+        {
+          "fold": 2,
+          "train_end": "2026-04-22",
+          "test_end": "2026-06-03",
+          "n_train": 4582,
+          "n_test": 841,
+          "accuracy": 0.5303,
+          "roc_auc": 0.5334,
+          "precision": 0.5357,
+          "recall": 0.5621
+        },
+        {
+          "fold": 3,
+          "train_end": "2026-06-03",
+          "test_end": "2026-07-17",
+          "n_train": 5423,
+          "n_test": 870,
+          "accuracy": 0.5011,
+          "roc_auc": 0.506,
+          "precision": 0.4898,
+          "recall": 0.5637
+        },
+        {
+          "fold": 4,
+          "train_end": "2026-07-17",
+          "test_end": "2026-08-28",
+          "n_train": 6293,
+          "n_test": 870,
+          "accuracy": 0.5092,
+          "roc_auc": 0.4887,
+          "precision": 0.5266,
+          "recall": 0.5881
+        }
+      ],
+      "mean_accuracy": 0.5018,
+      "mean_roc_auc": 0.4991,
+      "mean_precision": 0.5154,
+      "mean_recall": 0.585
+    },
+    "random_forest": {
+      "folds": [
+        {
+          "fold": 0,
+          "train_end": "2026-01-27",
+          "test_end": "2026-03-10",
+          "n_train": 2871,
+          "n_test": 841,
+          "accuracy": 0.4863,
+          "roc_auc": 0.4933,
+          "precision": 0.4891,
+          "recall": 0.6381
+        },
+        {
+          "fold": 1,
+          "train_end": "2026-03-10",
+          "test_end": "2026-04-22",
+          "n_train": 3712,
+          "n_test": 870,
+          "accuracy": 0.4517,
+          "roc_auc": 0.4454,
+          "precision": 0.5087,
+          "recall": 0.4215
+        },
+        {
+          "fold": 2,
+          "train_end": "2026-04-22",
+          "test_end": "2026-06-03",
+          "n_train": 4582,
+          "n_test": 841,
+          "accuracy": 0.4911,
+          "roc_auc": 0.5103,
+          "precision": 0.4985,
+          "recall": 0.3794
+        },
+        {
+          "fold": 3,
+          "train_end": "2026-06-03",
+          "test_end": "2026-07-17",
+          "n_train": 5423,
+          "n_test": 870,
+          "accuracy": 0.4805,
+          "roc_auc": 0.4971,
+          "precision": 0.4715,
+          "recall": 0.5472
+        },
+        {
+          "fold": 4,
+          "train_end": "2026-07-17",
+          "test_end": "2026-08-28",
+          "n_train": 6293,
+          "n_test": 870,
+          "accuracy": 0.5057,
+          "roc_auc": 0.5018,
+          "precision": 0.5228,
+          "recall": 0.6057
+        }
+      ],
+      "mean_accuracy": 0.4831,
+      "mean_roc_auc": 0.4896,
+      "mean_precision": 0.4981,
+      "mean_recall": 0.5184
+    },
+    "lightgbm": {
+      "folds": [
+        {
+          "fold": 0,
+          "train_end": "2026-01-27",
+          "test_end": "2026-03-10",
+          "n_train": 2871,
+          "n_test": 841,
+          "accuracy": 0.4923,
+          "roc_auc": 0.484,
+          "precision": 0.4934,
+          "recall": 0.6214
+        },
+        {
+          "fold": 1,
+          "train_end": "2026-03-10",
+          "test_end": "2026-04-22",
+          "n_train": 3712,
+          "n_test": 870,
+          "accuracy": 0.4678,
+          "roc_auc": 0.4626,
+          "precision": 0.5249,
+          "recall": 0.4566
+        },
+        {
+          "fold": 2,
+          "train_end": "2026-04-22",
+          "test_end": "2026-06-03",
+          "n_train": 4582,
+          "n_test": 841,
+          "accuracy": 0.4863,
+          "roc_auc": 0.5035,
+          "precision": 0.4936,
+          "recall": 0.4543
+        },
+        {
+          "fold": 3,
+          "train_end": "2026-06-03",
+          "test_end": "2026-07-17",
+          "n_train": 5423,
+          "n_test": 870,
+          "accuracy": 0.5103,
+          "roc_auc": 0.5331,
+          "precision": 0.4978,
+          "recall": 0.5377
+        },
+        {
+          "fold": 4,
+          "train_end": "2026-07-17",
+          "test_end": "2026-08-28",
+          "n_train": 6293,
+          "n_test": 870,
+          "accuracy": 0.4908,
+          "roc_auc": 0.4921,
+          "precision": 0.5127,
+          "recall": 0.489
+        }
+      ],
+      "mean_accuracy": 0.4895,
+      "mean_roc_auc": 0.4951,
+      "mean_precision": 0.5045,
+      "mean_recall": 0.5118
+    },
+    "xgboost": {
+      "folds": [
+        {
+          "fold": 0,
+          "train_end": "2026-01-27",
+          "test_end": "2026-03-10",
+          "n_train": 2871,
+          "n_test": 841,
+          "accuracy": 0.503,
+          "roc_auc": 0.4873,
+          "precision": 0.5017,
+          "recall": 0.7071
+        },
+        {
+          "fold": 1,
+          "train_end": "2026-03-10",
+          "test_end": "2026-04-22",
+          "n_train": 3712,
+          "n_test": 870,
+          "accuracy": 0.4667,
+          "roc_auc": 0.4557,
+          "precision": 0.5216,
+          "recall": 0.5
+        },
+        {
+          "fold": 2,
+          "train_end": "2026-04-22",
+          "test_end": "2026-06-03",
+          "n_train": 4582,
+          "n_test": 841,
+          "accuracy": 0.522,
+          "roc_auc": 0.5317,
+          "precision": 0.526,
+          "recall": 0.5925
+        },
+        {
+          "fold": 3,
+          "train_end": "2026-06-03",
+          "test_end": "2026-07-17",
+          "n_train": 5423,
+          "n_test": 870,
+          "accuracy": 0.5276,
+          "roc_auc": 0.5392,
+          "precision": 0.5118,
+          "recall": 0.6651
+        },
+        {
+          "fold": 4,
+          "train_end": "2026-07-17",
+          "test_end": "2026-08-28",
+          "n_train": 6293,
+          "n_test": 870,
+          "accuracy": 0.523,
+          "roc_auc": 0.5203,
+          "precision": 0.5362,
+          "recall": 0.6366
+        }
+      ],
+      "mean_accuracy": 0.5085,
+      "mean_roc_auc": 0.5068,
+      "mean_precision": 0.5195,
+      "mean_recall": 0.6203
+    }
+  },
+  "feature_importance": {
+    "mom_12m_skip1m": 0.0339,
+    "macd": 0.0331,
+    "sma_20_ratio": 0.0323,
+    "sma_10_ratio": 0.0319,
+    "return_5d": 0.0313,
+    "mom_63d": 0.0313,
+    "macd_signal": 0.0312,
+    "sma_50_ratio": 0.0308,
+    "volatility_10d": 0.0307,
+    "log_dollar_volume": 0.0304,
+    "volume_change": 0.0298,
+    "amihud_illiquidity": 0.0296,
+    "rsi_14": 0.0295,
+    "macd_hist": 0.0294,
+    "return_1d": 0.0293,
+    "mom_21d": 0.029,
+    "volatility_60d": 0.0285,
+    "mom_126d": 0.028,
+    "volatility_20d": 0.0272
+  }
+}
