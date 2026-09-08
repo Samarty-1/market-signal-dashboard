@@ -6,513 +6,513 @@
   "regime_filter": false,
   "by_ticker": {
     "AAPL": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.0563,
-        "annualized_return": 0.097,
-        "annualized_vol": 0.2115,
-        "sharpe": 0.5438,
-        "max_drawdown": -0.0921
+        "total_return": 0.0624,
+        "annualized_return": 0.1085,
+        "annualized_vol": 0.2191,
+        "sharpe": 0.5801,
+        "max_drawdown": -0.1105
       },
       "buy_hold": {
-        "total_return": 0.1883,
-        "annualized_return": 0.3387,
-        "annualized_vol": 0.276,
-        "sharpe": 1.1955,
+        "total_return": 0.1468,
+        "annualized_return": 0.2627,
+        "annualized_vol": 0.2756,
+        "sharpe": 0.9847,
         "max_drawdown": -0.1271
       }
     },
     "AMD": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.0017,
-        "annualized_return": -0.003,
-        "annualized_vol": 0.4387,
-        "sharpe": 0.2086,
-        "max_drawdown": -0.2658
+        "total_return": 0.3221,
+        "annualized_return": 0.6088,
+        "annualized_vol": 0.4925,
+        "sharpe": 1.2082,
+        "max_drawdown": -0.1951
       },
       "buy_hold": {
-        "total_return": 0.9392,
-        "annualized_return": 2.0652,
-        "annualized_vol": 0.7597,
-        "sharpe": 1.8513,
+        "total_return": 1.5263,
+        "annualized_return": 3.8452,
+        "annualized_vol": 0.7278,
+        "sharpe": 2.5284,
         "max_drawdown": -0.2605
       }
     },
     "AMZN": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.2879,
-        "annualized_return": -0.4369,
-        "annualized_vol": 0.2185,
-        "sharpe": -2.5155,
-        "max_drawdown": -0.275
+        "total_return": -0.2886,
+        "annualized_return": -0.4401,
+        "annualized_vol": 0.2322,
+        "sharpe": -2.3786,
+        "max_drawdown": -0.2758
       },
       "buy_hold": {
-        "total_return": 0.064,
-        "annualized_return": 0.1106,
-        "annualized_vol": 0.3711,
-        "sharpe": 0.4623,
+        "total_return": 0.1029,
+        "annualized_return": 0.1815,
+        "annualized_vol": 0.3703,
+        "sharpe": 0.6297,
         "max_drawdown": -0.1758
       }
     },
     "AVGO": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.0349,
-        "annualized_return": 0.0598,
-        "annualized_vol": 0.3077,
-        "sharpe": 0.3409,
-        "max_drawdown": -0.1534
+        "total_return": 0.1031,
+        "annualized_return": 0.1818,
+        "annualized_vol": 0.2843,
+        "sharpe": 0.7288,
+        "max_drawdown": -0.1846
       },
       "buy_hold": {
-        "total_return": 0.0849,
-        "annualized_return": 0.1478,
-        "annualized_vol": 0.4732,
-        "sharpe": 0.5281,
+        "total_return": 0.2008,
+        "annualized_return": 0.3656,
+        "annualized_vol": 0.4713,
+        "sharpe": 0.8975,
         "max_drawdown": -0.2604
       }
     },
     "BA": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.0207,
-        "annualized_return": 0.0353,
-        "annualized_vol": 0.2225,
-        "sharpe": 0.2648,
-        "max_drawdown": -0.1461
+        "total_return": -0.0786,
+        "annualized_return": -0.1301,
+        "annualized_vol": 0.2744,
+        "sharpe": -0.3732,
+        "max_drawdown": -0.1959
       },
       "buy_hold": {
-        "total_return": -0.0891,
-        "annualized_return": -0.1461,
-        "annualized_vol": 0.3506,
-        "sharpe": -0.2776,
+        "total_return": -0.1069,
+        "annualized_return": -0.1751,
+        "annualized_vol": 0.3515,
+        "sharpe": -0.3743,
         "max_drawdown": -0.2268
       }
     },
     "BAC": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.1548,
-        "annualized_return": 0.2757,
-        "annualized_vol": 0.1691,
-        "sharpe": 1.5252,
-        "max_drawdown": -0.1058
+        "total_return": 0.0542,
+        "annualized_return": 0.0941,
+        "annualized_vol": 0.1882,
+        "sharpe": 0.572,
+        "max_drawdown": -0.1672
       },
       "buy_hold": {
-        "total_return": 0.1787,
-        "annualized_return": 0.3206,
-        "annualized_vol": 0.2201,
-        "sharpe": 1.3739,
+        "total_return": 0.1446,
+        "annualized_return": 0.2586,
+        "annualized_vol": 0.2198,
+        "sharpe": 1.1566,
         "max_drawdown": -0.1689
       }
     },
     "CAT": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.138,
-        "annualized_return": 0.2444,
-        "annualized_vol": 0.2674,
-        "sharpe": 0.951,
-        "max_drawdown": -0.1423
+        "total_return": 0.127,
+        "annualized_return": 0.2258,
+        "annualized_vol": 0.2945,
+        "sharpe": 0.8377,
+        "max_drawdown": -0.1726
       },
       "buy_hold": {
-        "total_return": 0.1825,
-        "annualized_return": 0.3278,
-        "annualized_vol": 0.4281,
-        "sharpe": 0.8742,
+        "total_return": 0.1933,
+        "annualized_return": 0.3512,
+        "annualized_vol": 0.4286,
+        "sharpe": 0.9144,
         "max_drawdown": -0.267
       }
     },
     "CVX": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.1194,
-        "annualized_return": 0.2101,
-        "annualized_vol": 0.2257,
-        "sharpe": 0.9578,
-        "max_drawdown": -0.1778
+        "total_return": 0.0371,
+        "annualized_return": 0.064,
+        "annualized_vol": 0.2074,
+        "sharpe": 0.4022,
+        "max_drawdown": -0.155
       },
       "buy_hold": {
-        "total_return": 0.2321,
-        "annualized_return": 0.4234,
-        "annualized_vol": 0.2512,
-        "sharpe": 1.5315,
+        "total_return": 0.19,
+        "annualized_return": 0.3447,
+        "annualized_vol": 0.2496,
+        "sharpe": 1.3116,
         "max_drawdown": -0.2081
       }
     },
     "DIA": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.1322,
-        "annualized_return": 0.2337,
-        "annualized_vol": 0.1098,
-        "sharpe": 1.9685,
-        "max_drawdown": -0.0658
+        "total_return": 0.0779,
+        "annualized_return": 0.1362,
+        "annualized_vol": 0.1145,
+        "sharpe": 1.1717,
+        "max_drawdown": -0.0803
       },
       "buy_hold": {
-        "total_return": 0.09,
-        "annualized_return": 0.1569,
-        "annualized_vol": 0.1349,
-        "sharpe": 1.1476,
+        "total_return": 0.0761,
+        "annualized_return": 0.133,
+        "annualized_vol": 0.136,
+        "sharpe": 0.9855,
         "max_drawdown": -0.0976
       }
     },
     "DIS": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.0011,
-        "annualized_return": -0.0019,
-        "annualized_vol": 0.1448,
-        "sharpe": 0.0586,
-        "max_drawdown": -0.1109
+        "total_return": -0.0164,
+        "annualized_return": -0.0278,
+        "annualized_vol": 0.1436,
+        "sharpe": -0.1254,
+        "max_drawdown": -0.0766
       },
       "buy_hold": {
-        "total_return": 0.016,
-        "annualized_return": 0.0271,
-        "annualized_vol": 0.2724,
-        "sharpe": 0.2327,
+        "total_return": -0.0111,
+        "annualized_return": -0.0188,
+        "annualized_vol": 0.271,
+        "sharpe": 0.0638,
         "max_drawdown": -0.1595
       }
     },
     "GOOGL": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.0863,
-        "annualized_return": 0.1502,
-        "annualized_vol": 0.2418,
-        "sharpe": 0.6981,
-        "max_drawdown": -0.1524
+        "total_return": 0.0058,
+        "annualized_return": 0.0098,
+        "annualized_vol": 0.2422,
+        "sharpe": 0.1595,
+        "max_drawdown": -0.1413
       },
       "buy_hold": {
-        "total_return": -0.0133,
-        "annualized_return": -0.0224,
-        "annualized_vol": 0.3443,
-        "sharpe": 0.1037,
+        "total_return": 0.018,
+        "annualized_return": 0.0308,
+        "annualized_vol": 0.3441,
+        "sharpe": 0.2574,
         "max_drawdown": -0.2105
       }
     },
     "GS": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.1898,
-        "annualized_return": 0.3416,
-        "annualized_vol": 0.2771,
-        "sharpe": 1.1984,
-        "max_drawdown": -0.1408
+        "total_return": 0.0068,
+        "annualized_return": 0.0117,
+        "annualized_vol": 0.2446,
+        "sharpe": 0.1698,
+        "max_drawdown": -0.1575
       },
       "buy_hold": {
-        "total_return": 0.1136,
-        "annualized_return": 0.1995,
-        "annualized_vol": 0.3535,
-        "sharpe": 0.69,
+        "total_return": 0.1515,
+        "annualized_return": 0.2716,
+        "annualized_vol": 0.3526,
+        "sharpe": 0.8564,
         "max_drawdown": -0.1714
       }
     },
     "IWM": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.1208,
-        "annualized_return": 0.2128,
-        "annualized_vol": 0.165,
-        "sharpe": 1.2517,
-        "max_drawdown": -0.1079
+        "total_return": 0.0472,
+        "annualized_return": 0.0818,
+        "annualized_vol": 0.1606,
+        "sharpe": 0.5692,
+        "max_drawdown": -0.0901
       },
       "buy_hold": {
-        "total_return": 0.1337,
-        "annualized_return": 0.2365,
-        "annualized_vol": 0.1913,
-        "sharpe": 1.2053,
+        "total_return": 0.1358,
+        "annualized_return": 0.2421,
+        "annualized_vol": 0.1916,
+        "sharpe": 1.2269,
         "max_drawdown": -0.1006
       }
     },
     "JNJ": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.2095,
-        "annualized_return": 0.3795,
-        "annualized_vol": 0.1892,
-        "sharpe": 1.7955,
-        "max_drawdown": -0.0894
+        "total_return": 0.1788,
+        "annualized_return": 0.3233,
+        "annualized_vol": 0.1933,
+        "sharpe": 1.5456,
+        "max_drawdown": -0.0844
       },
       "buy_hold": {
-        "total_return": 0.2119,
-        "annualized_return": 0.3842,
-        "annualized_vol": 0.2105,
-        "sharpe": 1.6498,
+        "total_return": 0.1662,
+        "annualized_return": 0.2993,
+        "annualized_vol": 0.213,
+        "sharpe": 1.3354,
         "max_drawdown": -0.1096
       }
     },
     "JPM": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.0671,
-        "annualized_return": 0.116,
-        "annualized_vol": 0.1762,
-        "sharpe": 0.7107,
-        "max_drawdown": -0.1151
+        "total_return": 0.0883,
+        "annualized_return": 0.1551,
+        "annualized_vol": 0.1741,
+        "sharpe": 0.9147,
+        "max_drawdown": -0.0967
       },
       "buy_hold": {
-        "total_return": 0.1751,
-        "annualized_return": 0.3138,
-        "annualized_vol": 0.2238,
-        "sharpe": 1.3311,
+        "total_return": 0.125,
+        "annualized_return": 0.222,
+        "annualized_vol": 0.2237,
+        "sharpe": 1.0079,
         "max_drawdown": -0.1227
       }
     },
     "KO": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.1927,
-        "annualized_return": 0.3471,
-        "annualized_vol": 0.1731,
-        "sharpe": 1.8079,
-        "max_drawdown": -0.0604
+        "total_return": 0.3025,
+        "annualized_return": 0.5682,
+        "annualized_vol": 0.1673,
+        "sharpe": 2.7739,
+        "max_drawdown": -0.0421
       },
       "buy_hold": {
-        "total_return": 0.1848,
-        "annualized_return": 0.3321,
-        "annualized_vol": 0.2037,
-        "sharpe": 1.5088,
+        "total_return": 0.1576,
+        "annualized_return": 0.283,
+        "annualized_vol": 0.2027,
+        "sharpe": 1.33,
         "max_drawdown": -0.0787
       }
     },
     "MCD": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.1398,
-        "annualized_return": -0.2249,
-        "annualized_vol": 0.1708,
-        "sharpe": -1.4062,
-        "max_drawdown": -0.1709
+        "total_return": -0.0964,
+        "annualized_return": -0.1585,
+        "annualized_vol": 0.1678,
+        "sharpe": -0.9452,
+        "max_drawdown": -0.1341
       },
       "buy_hold": {
-        "total_return": -0.1815,
-        "annualized_return": -0.2874,
-        "annualized_vol": 0.201,
-        "sharpe": -1.5847,
+        "total_return": -0.1942,
+        "annualized_return": -0.3077,
+        "annualized_vol": 0.2007,
+        "sharpe": -1.7307,
         "max_drawdown": -0.2356
       }
     },
     "META": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.0721,
-        "annualized_return": -0.1189,
-        "annualized_vol": 0.2876,
-        "sharpe": -0.2966,
-        "max_drawdown": -0.1812
+        "total_return": -0.0714,
+        "annualized_return": -0.1185,
+        "annualized_vol": 0.2792,
+        "sharpe": -0.3132,
+        "max_drawdown": -0.2
       },
       "buy_hold": {
-        "total_return": -0.1253,
-        "annualized_return": -0.2027,
-        "annualized_vol": 0.4158,
-        "sharpe": -0.3372,
-        "max_drawdown": -0.2393
+        "total_return": -0.0813,
+        "annualized_return": -0.1345,
+        "annualized_vol": 0.4142,
+        "sharpe": -0.1421,
+        "max_drawdown": -0.223
       }
     },
     "MSFT": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.3333,
-        "annualized_return": 0.6266,
-        "annualized_vol": 0.2116,
-        "sharpe": 2.4049,
-        "max_drawdown": -0.1163
+        "total_return": 0.5184,
+        "annualized_return": 1.0363,
+        "annualized_vol": 0.2754,
+        "sharpe": 2.7154,
+        "max_drawdown": -0.0896
       },
       "buy_hold": {
-        "total_return": 0.1878,
-        "annualized_return": 0.3378,
-        "annualized_vol": 0.3677,
-        "sharpe": 0.9693,
+        "total_return": 0.2001,
+        "annualized_return": 0.3643,
+        "annualized_vol": 0.3672,
+        "sharpe": 1.0236,
         "max_drawdown": -0.2338
       }
     },
     "NFLX": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.2235,
-        "annualized_return": -0.3481,
-        "annualized_vol": 0.2122,
-        "sharpe": -1.9084,
-        "max_drawdown": -0.243
+        "total_return": 0.0005,
+        "annualized_return": 0.0009,
+        "annualized_vol": 0.2134,
+        "sharpe": 0.1102,
+        "max_drawdown": -0.1039
       },
       "buy_hold": {
-        "total_return": -0.0545,
-        "annualized_return": -0.0904,
-        "annualized_vol": 0.3921,
-        "sharpe": -0.0484,
+        "total_return": -0.0423,
+        "annualized_return": -0.0709,
+        "annualized_vol": 0.3917,
+        "sharpe": 0.0052,
         "max_drawdown": -0.3729
       }
     },
     "NVDA": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.2914,
-        "annualized_return": 0.5412,
-        "annualized_vol": 0.3581,
-        "sharpe": 1.3856,
-        "max_drawdown": -0.1489
+        "total_return": 0.3446,
+        "annualized_return": 0.6557,
+        "annualized_vol": 0.3306,
+        "sharpe": 1.6892,
+        "max_drawdown": -0.1545
       },
       "buy_hold": {
-        "total_return": 0.2426,
-        "annualized_return": 0.4439,
-        "annualized_vol": 0.4072,
-        "sharpe": 1.104,
+        "total_return": 0.2975,
+        "annualized_return": 0.558,
+        "annualized_vol": 0.4049,
+        "sharpe": 1.2959,
         "max_drawdown": -0.193
       }
     },
     "PFE": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.061,
-        "annualized_return": 0.1053,
-        "annualized_vol": 0.1506,
-        "sharpe": 0.7391,
-        "max_drawdown": -0.09
+        "total_return": 0.0036,
+        "annualized_return": 0.0061,
+        "annualized_vol": 0.1436,
+        "sharpe": 0.1137,
+        "max_drawdown": -0.0913
       },
       "buy_hold": {
-        "total_return": 0.1037,
-        "annualized_return": 0.1817,
-        "annualized_vol": 0.2168,
-        "sharpe": 0.8775,
+        "total_return": 0.0733,
+        "annualized_return": 0.128,
+        "annualized_vol": 0.2092,
+        "sharpe": 0.6795,
         "max_drawdown": -0.1572
       }
     },
     "PG": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.0958,
-        "annualized_return": -0.1567,
-        "annualized_vol": 0.1531,
-        "sharpe": -1.0364,
-        "max_drawdown": -0.1841
+        "total_return": -0.1049,
+        "annualized_return": -0.172,
+        "annualized_vol": 0.1608,
+        "sharpe": -1.0935,
+        "max_drawdown": -0.1861
       },
       "buy_hold": {
-        "total_return": -0.0297,
-        "annualized_return": -0.0497,
-        "annualized_vol": 0.2111,
-        "sharpe": -0.1367,
+        "total_return": -0.058,
+        "annualized_return": -0.0967,
+        "annualized_vol": 0.2107,
+        "sharpe": -0.3784,
         "max_drawdown": -0.1552
       }
     },
     "QQQ": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.1516,
-        "annualized_return": 0.2696,
-        "annualized_vol": 0.1675,
-        "sharpe": 1.5086,
-        "max_drawdown": -0.0626
+        "total_return": 0.1512,
+        "annualized_return": 0.2709,
+        "annualized_vol": 0.1682,
+        "sharpe": 1.5091,
+        "max_drawdown": -0.0742
       },
       "buy_hold": {
-        "total_return": 0.151,
-        "annualized_return": 0.2684,
-        "annualized_vol": 0.2196,
-        "sharpe": 1.1921,
+        "total_return": 0.1887,
+        "annualized_return": 0.3422,
+        "annualized_vol": 0.218,
+        "sharpe": 1.4592,
         "max_drawdown": -0.1122
       }
     },
     "SPY": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.0254,
-        "annualized_return": 0.0433,
-        "annualized_vol": 0.1169,
-        "sharpe": 0.4209,
-        "max_drawdown": -0.0934
+        "total_return": 0.0076,
+        "annualized_return": 0.0129,
+        "annualized_vol": 0.1197,
+        "sharpe": 0.1667,
+        "max_drawdown": -0.0868
       },
       "buy_hold": {
-        "total_return": 0.1134,
-        "annualized_return": 0.1993,
+        "total_return": 0.1222,
+        "annualized_return": 0.2169,
         "annualized_vol": 0.1383,
-        "sharpe": 1.3832,
+        "sharpe": 1.4888,
         "max_drawdown": -0.0868
       }
     },
     "TSLA": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.273,
-        "annualized_return": -0.4168,
-        "annualized_vol": 0.4085,
-        "sharpe": -1.1103,
-        "max_drawdown": -0.3778
+        "total_return": -0.1866,
+        "annualized_return": -0.2964,
+        "annualized_vol": 0.4197,
+        "sharpe": -0.6247,
+        "max_drawdown": -0.2988
       },
       "buy_hold": {
-        "total_return": -0.1606,
-        "annualized_return": -0.2562,
-        "annualized_vol": 0.4821,
-        "sharpe": -0.3709,
+        "total_return": -0.0932,
+        "annualized_return": -0.1535,
+        "annualized_vol": 0.4841,
+        "sharpe": -0.1003,
         "max_drawdown": -0.33
       }
     },
     "UNH": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.1154,
-        "annualized_return": 0.2028,
-        "annualized_vol": 0.225,
-        "sharpe": 0.9306,
-        "max_drawdown": -0.0958
+        "total_return": 0.1017,
+        "annualized_return": 0.1792,
+        "annualized_vol": 0.2019,
+        "sharpe": 0.9148,
+        "max_drawdown": -0.0942
       },
       "buy_hold": {
-        "total_return": 0.4094,
-        "annualized_return": 0.7867,
-        "annualized_vol": 0.2967,
-        "sharpe": 2.1035,
+        "total_return": 0.4724,
+        "annualized_return": 0.9324,
+        "annualized_vol": 0.2947,
+        "sharpe": 2.3819,
         "max_drawdown": -0.118
       }
     },
     "WMT": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": -0.1148,
-        "annualized_return": -0.1863,
-        "annualized_vol": 0.2167,
-        "sharpe": -0.8427,
-        "max_drawdown": -0.1947
+        "total_return": -0.1512,
+        "annualized_return": -0.2435,
+        "annualized_vol": 0.2137,
+        "sharpe": -1.1982,
+        "max_drawdown": -0.2005
       },
       "buy_hold": {
-        "total_return": -0.1309,
-        "annualized_return": -0.2112,
-        "annualized_vol": 0.2841,
-        "sharpe": -0.6912,
+        "total_return": -0.1662,
+        "annualized_return": -0.2662,
+        "annualized_vol": 0.2825,
+        "sharpe": -0.9521,
         "max_drawdown": -0.2334
       }
     },
     "XOM": {
-      "n_days": 149,
+      "n_days": 148,
       "strategy": {
-        "total_return": 0.2397,
-        "annualized_return": 0.4382,
-        "annualized_vol": 0.2379,
-        "sharpe": 1.6464,
-        "max_drawdown": -0.1764
+        "total_return": 0.1436,
+        "annualized_return": 0.2567,
+        "annualized_vol": 0.2294,
+        "sharpe": 1.1105,
+        "max_drawdown": -0.1631
       },
       "buy_hold": {
-        "total_return": 0.1754,
-        "annualized_return": 0.3142,
-        "annualized_vol": 0.2866,
-        "sharpe": 1.0964,
+        "total_return": 0.1104,
+        "annualized_return": 0.1952,
+        "annualized_vol": 0.2815,
+        "sharpe": 0.7737,
         "max_drawdown": -0.2011
       }
     }
   },
   "portfolio": {
-    "n_days": 149,
+    "n_days": 148,
     "strategy": {
-      "total_return": 0.056,
-      "annualized_return": 0.0965,
-      "annualized_vol": 0.0755,
-      "sharpe": 1.258,
-      "max_drawdown": -0.0584
+      "total_return": 0.0614,
+      "annualized_return": 0.1068,
+      "annualized_vol": 0.0825,
+      "sharpe": 1.2708,
+      "max_drawdown": -0.061
     },
     "buy_hold": {
-      "total_return": 0.1316,
-      "annualized_return": 0.2326,
-      "annualized_vol": 0.1298,
-      "sharpe": 1.6763,
+      "total_return": 0.1432,
+      "annualized_return": 0.2558,
+      "annualized_vol": 0.1296,
+      "sharpe": 1.8227,
       "max_drawdown": -0.0736
     }
   }
