@@ -26,6 +26,7 @@ from research.blend_study import cs_rank
 from research.cost_study import fwd_wide
 from research.decompose import split
 from research.experiment import DEV_END
+from research.harness import SUFFIX
 from research.horizon_study import HORIZONS, get_predictions
 from research.panel import load_panel
 from research.portfolio import decile_weights, metrics, signal_to_weights, simulate, smooth
@@ -82,8 +83,9 @@ def main() -> None:
                   f"{m['net_ann_ret']:>+8.3f} {m['ann_vol']:>8.3f} {m['max_dd']:>+8.3f} "
                   f"{m['turnover_daily']:>7.4f} {m['n_days']:>6}", flush=True)
 
-    Path("research/results_confirm.json").write_text(json.dumps(out, indent=2, default=str))
-    print("\nwrote research/results_confirm.json")
+    dest = Path(f"research/results_confirm{SUFFIX}.json")
+    dest.write_text(json.dumps(out, indent=2, default=str))
+    print(f"\nwrote {dest}")
 
 
 if __name__ == "__main__":

@@ -16,8 +16,9 @@ Most portfolio ML projects stop at "trained a model, got a metric." This one
 chains the pieces that actually make up a real system:
 
 1. **Data ingestion** — live OHLCV pulls from Yahoo Finance (`src/data_ingestion.py`) across a ~30-ticker universe spanning tech, semis, financials, healthcare, consumer, energy, industrials, comms, and broad ETFs, not a static Kaggle CSV or a handful of mega-caps.
+1b. **A data-quality gate** — `src/data_quality.py` validates every pull before anything trains on it (see [Data quality](#data-quality-gate) below). A stale feed or a missing universe stops the scheduled run before any artifact is committed.
 2. **Model training with proper validation** — `src/model.py` compares Logistic Regression, Random Forest, LightGBM, and XGBoost using **walk-forward (expanding-window) validation**, splitting on calendar date so no ticker's future ever leaks into an earlier fold's training set.
-3. **An honest, cost-aware backtest** — `src/backtest.py` scores the strategy using *only* each fold's out-of-sample predictions (never the final full-data-fit model on its own training history — a common and easy-to-miss overfitting trap), with configurable position sizing (binary or confidence-scaled), per-trade transaction costs, and an optional VIX regime filter that only trades a regime once it's shown positive historical edge.
+3. **An honest, cost-aware backtest** — `src/backtest.py` scores the strategy using *only* each fold's out-of-sample predictions (never the final full-data-fit model on its own training history — a common and easy-to-miss overfitting trap), with configurable position sizing (binary or confidence-scaled), per-trade transaction costs (5bp by default — this was 0 until 2026-10-02, so the published backtest used to be costless), and an optional VIX regime filter that only trades a regime once it's shown positive historical edge.
 4. **An interactive dashboard** — a static, Nocturne-styled front end in `frontend/` (plain HTML/CSS/JS, no build step, no framework server) visualizes all of the above: a ticker compare overlay, candlestick charts, a real confusion matrix/ROC curve computed from the out-of-sample predictions, CSV export, and a live-as-of-last-export price/probability reading per ticker.
 5. **A model registry** — `src/registry.py` versions every trained model under `models/registry/<timestamp>/` with a `registry.json` pointer/history (instead of overwriting one file in place), so there's a rollback-able audit trail; old artifacts beyond the most recent 30 versions are pruned to keep the repo bounded while their metadata stays in history.
 6. **A scheduled retrain** — `.github/workflows/retrain.yml` runs the whole pipeline on a cron schedule — ingestion → model → registry → backtest → frontend data export — and commits the refreshed artifacts back to the repo, so the commit history itself is evidence this runs on a real cadence, not just once locally.
@@ -325,6 +326,11 @@ a real comparison. The reported `n_benchmark_days` makes the alignment visible.
 
 ## Revisiting that conclusion: it was the construction, not the signal
 
+> **Re-checked on a point-in-time universe on 2026-10-02 — read
+> [the correction below](#correction-2-the-construction-fix-was-measured-on-the-survivorship-biased-universe)
+> before quoting any number in this section.** The construction fix is real; its
+> size was not.
+
 The conclusion above — "the edge is real but too small to trade" — turned out
 to be wrong, and wrong in an instructive way. It attributed the failure to the
 *signal* when the failure was in the *portfolio construction*. Re-examined on
@@ -403,6 +409,60 @@ fundamental characteristics and wrong here.
 
 Reproduce: `python -m research.confirm` (final numbers),
 `python -m research.sensitivity` (cost and year-by-year robustness).
+
+### Correction 2: the construction fix was measured on the survivorship-biased universe
+
+The section above was developed in parallel with the survivorship fix, and its
+price cache (`fetch_cache.py`) was built from **today's** S&P 500 list. That is
+the same bias the first correction measured, and the "static" book's profile —
+long small, illiquid, high-volatility names — is exactly the profile it
+flatters most: the small, volatile names that are still in the index today are
+the ones that did not fail.
+
+So the identical frozen pipeline (same model, horizons, seeds, construction,
+EMA, band, 10bp cost, same 2022-12-31 split, nothing re-tuned) was re-run on
+both universes, over the same dates:
+
+```
+MSD_UNIVERSE=current python -m research.panel && python -m research.confirm
+python fetch_cache.py --universe pit
+MSD_UNIVERSE=pit     python -m research.panel && python -m research.confirm
+```
+
+The point-in-time universe holds every name that was an index member at any
+quarter-end since 2014-10 (792), ranks each one only on dates it was a member,
+and drops 31 recycled ticker symbols.
+
+**Confirmation set, 2023-01 → 2026-10 (940 trading days), net of 10bp cost:**
+
+| Book | Today's members (biased) | Point-in-time | t-stat (PIT) |
+|---|---|---|---|
+| Repo baseline (hard decile, daily) | −1.93 | −2.58 | |
+| Rank weights + EMA-42 + band (full) | **+1.73** | **+0.71** | ≈ 1.4 |
+| …static / tilt component | +1.59 | +0.79 | |
+| …timing component (stock-selection skill) | +0.96 | **+0.43** | ≈ 0.8 |
+| Net annual return, full book | +8.8% | +2.2% | |
+
+What survives and what does not:
+
+- **The construction finding survives.** On either universe the hard-decile
+  book loses heavily after costs, and continuous rank weights with smoothing cut
+  turnover ~60–90× and turn a large loss into a small gain. "It was the
+  construction, not the signal" was the right diagnosis of the *loss*.
+- **The profit does not.** About 60% of the full book's Sharpe, and over half
+  of the timing component's, was survivorship. What is left is not
+  statistically distinguishable from zero over 3.7 years (t ≈ 1.4 for the full
+  book, ≈ 0.8 for timing), earning about 2% a year.
+- **And the point-in-time number is still an upper bound.** Yahoo has no prices
+  for 200 of the 792 historical members (25%, see
+  `research/pit_coverage.json`), and the missing names skew toward the
+  bankruptcies and collapses. Fixing that needs paid delisting data (CRSP,
+  Norgate); free data can only bound it.
+
+Honest conclusion, replacing both earlier ones: **the ranking signal is real
+(positive IC), the original construction was the reason it lost money, and the
+corrected construction is roughly break-even-to-slightly-positive with no
+statistically supported edge once the universe is point-in-time.**
 
 ### Next steps (flagged, not yet attempted)
 
@@ -554,21 +614,49 @@ python -m src.backtest --tickers TSLA,NVDA,SPY --threshold 0.55
 ```bash
 python -m src.backtest \
   --position-sizing confidence \  # "binary" (default) or "confidence" (scales with P(up) - threshold)
-  --cost-bps 5 \                  # per-unit-of-turnover transaction cost, in basis points (default 0)
+  --cost-bps 5 \                  # per-unit-of-turnover transaction cost, in basis points (default 5)
+  --prices data/prices.csv \      # score the cleaned snapshot src.model trained on, not a fresh download
   --regime-filter                 # only trade when the current VIX tercile has shown positive prior-fold edge
 ```
 
 The dashboard's Backtest tab recomputes a binary long/flat equity curve
 client-side from the exported out-of-sample predictions as you move the
-threshold slider — the position-sizing/cost/regime-filter options above are
-CLI/backtest-report-level controls for now (porting all three into the
-static frontend's JS would be the next step if that interactivity is wanted
-client-side too).
+threshold slider, charging the same per-switch cost as the published backtest
+(exported as `backtestCostBps`). Position sizing and the regime filter remain
+CLI/backtest-report-level controls.
+
+## Data quality gate
+
+Yahoo Finance is a free feed and behaves like one. `src/data_quality.py` runs on
+every pull, inside `python -m src.model`, before any training:
+
+| Problem | Action |
+|---|---|
+| Duplicate `(date, ticker)` rows | removed, counted |
+| Missing, non-finite, zero or negative prices | removed, counted |
+| Negative volume | removed, counted |
+| Today's bar while the market is still open (Yahoo serves the in-progress session as a finished day) | removed, counted |
+| One-day move above 50%, high below low / close outside the range, zero volume | **kept** and flagged — a real crash day must never be deleted for looking extreme |
+| A requested ticker returned nothing | warning (it used to be skipped silently); **error** above 10% of the universe |
+| Newest bar more than 3 business days old | **error** — the run stops before anything is committed |
+| One ticker stopped updating while the rest did | warning |
+
+The report is written to `reports/data_quality.json` on every run (so the commit
+history records what the data looked like each day, not just the model) and is
+shown in the dashboard's "Data quality gate" panel. `src.model` writes the cleaned
+snapshot to `data/prices.csv`, and the backtest reads that same file, so the
+model and its backtest can never be scored on two different downloads.
+
+A silent failure of exactly this kind turned up while building it, outside the price data. Yahoo's `Ticker.news` started
+returning an empty list for every ticker on 2026-08-28, and the live sentiment
+panel showed "no data" for a month with no error anywhere. Headlines now fall
+back to `yf.Search`, filtered to stories tagged with the ticker.
 
 ## Scheduled retraining
 
 `.github/workflows/retrain.yml` runs weekdays at 21:30 UTC (after the US
-market closes), re-pulls data, re-runs walk-forward validation, re-backtests,
+market closes), re-pulls data, validates it (the run fails there if the gate
+does), re-runs walk-forward validation, re-backtests on the same snapshot,
 re-exports `frontend/data/dashboard_data.json`, and commits `models/`,
 `reports/`, and `frontend/data/` back to the repo if anything changed.
 Trigger it manually from the **Actions** tab (`workflow_dispatch`) to see it

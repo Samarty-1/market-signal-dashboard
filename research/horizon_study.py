@@ -17,10 +17,10 @@ from pathlib import Path
 import pandas as pd
 
 from research.experiment import DEV_END, lgbm_regressor_lowsnr, run
-from research.harness import daily_rank_ic, ic_summary
+from research.harness import SUFFIX, daily_rank_ic, ic_summary
 from research.panel import load_panel
 
-PRED_DIR = Path("cache/preds")
+PRED_DIR = Path(f"cache/preds{SUFFIX}")
 FEATURE_SETS = ["raw_", "csz_"]
 HORIZONS = [1, 5, 10, 21]
 

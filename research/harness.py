@@ -10,13 +10,25 @@ shift/rolling down a column (backward-looking only).
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-CACHE = Path("cache/prices_sp500_12y.parquet")
+# Which universe every research module reads. "current" is today's S&P 500 list
+# applied to 12 years of history -- SURVIVORSHIP-BIASED, kept so the bias stays
+# measurable. "pit" is point-in-time membership (src/universe.py): every name that
+# was in the index during the window, ranked only on dates it was a member.
+# Each universe has its own price cache, panel and predictions, so the two can
+# never contaminate each other.
+UNIVERSE = os.environ.get("MSD_UNIVERSE", "current")
+if UNIVERSE not in ("current", "pit"):
+    raise ValueError(f"MSD_UNIVERSE must be 'current' or 'pit', not {UNIVERSE!r}")
+SUFFIX = "" if UNIVERSE == "current" else "_pit"
+CACHE = Path("cache/prices_sp500_12y.parquet" if UNIVERSE == "current" else "cache/prices_sp500pit_12y.parquet")
+MEMBERSHIP = Path("cache/membership_pit.parquet")
 
 # Feature families the ML asset-pricing literature finds dominant (Gu/Kelly/Xiu):
 # momentum, liquidity, volatility -- plus the short-horizon reversal terms that
@@ -39,6 +51,26 @@ def load_wide() -> tuple[pd.DataFrame, pd.DataFrame]:
     close = px.pivot(index="date", columns="ticker", values="close").sort_index()
     volume = px.pivot(index="date", columns="ticker", values="volume").sort_index()
     return close, volume
+
+
+def membership_mask(index: pd.DatetimeIndex, columns: pd.Index) -> pd.DataFrame | None:
+    """date x ticker boolean: was the name an index member on that date?
+
+    None for the "current" universe. Membership is held forward from the most
+    recent quarterly sample at or before each date -- never back-filled from a
+    later sample, which would be the look-ahead this exists to remove. Dates
+    before the first sample use the first sample (same rule as
+    src.universe.apply_point_in_time_membership)."""
+    if UNIVERSE == "current":
+        return None
+    hist = pd.read_parquet(MEMBERSHIP)
+    hist["member"] = True
+    wide = (hist.pivot_table(index="sample_date", columns="ticker", values="member",
+                             aggfunc="any", fill_value=False)
+            .reindex(columns=columns, fill_value=False).astype(bool).sort_index())
+    pos = wide.index.searchsorted(index, side="right") - 1
+    mask = wide.iloc[np.clip(pos, 0, len(wide) - 1)].to_numpy()
+    return pd.DataFrame(mask, index=index, columns=columns)
 
 
 def _ewm_wide(df: pd.DataFrame, span=None, alpha=None, min_periods=0) -> pd.DataFrame:

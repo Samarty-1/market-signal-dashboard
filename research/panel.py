@@ -20,10 +20,10 @@ import numpy as np
 import pandas as pd
 
 from research.harness import (
-    FEATURES, build_features, cs_rank_norm, forward_return, load_wide,
+    FEATURES, SUFFIX, build_features, cs_rank_norm, forward_return, load_wide, membership_mask,
 )
 
-PANEL = Path("cache/panel.parquet")
+PANEL = Path(f"cache/panel{SUFFIX}.parquet")
 HORIZONS = (5, 10, 21)
 
 
@@ -43,6 +43,12 @@ def build_panel() -> pd.DataFrame:
     # price and real volume. Ranking against peers that are not actually there
     # would be a subtle leak.
     valid = close.notna() & volume.notna() & (volume > 0)
+    # Point-in-time universe: a name is rankable only on dates it was actually an
+    # index member. Its earlier history still feeds its features (momentum needs
+    # the past year), it just cannot be traded or ranked before it joined.
+    member = membership_mask(close.index, close.columns)
+    if member is not None:
+        valid &= member
     for name in FEATURES:
         feats[name] = feats[name].where(valid)
 
