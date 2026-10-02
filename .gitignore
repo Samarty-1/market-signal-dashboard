@@ -15,3 +15,6 @@ data/*.csv
 # Model artifacts and metrics ARE committed: the scheduled GitHub Action
 # retrains daily and commits the refreshed model/metrics, so the commit
 # history itself is evidence the pipeline runs on a real schedule.
+
+# Ad-hoc run logs from scripts/ (the committed *_comparison.json holds the result)
+data/*.log

@@ -226,6 +226,98 @@ provide (see "Next steps" below).
 Reproduce this yourself: `python -m src.cross_sectional_long_short_pipeline
 [--universe sp500|smallcap] [--period 10y] [--model xgboost]`.
 
+### Correction: every number above was computed on a survivorship-biased universe
+
+The investigation above was run on a universe built by
+`fetch_sp500_tickers()`, which scrapes the S&P 500 constituent list **as it
+looks today** and then pulls years of history for those names. That is the
+textbook survivorship-bias bug, and the effect here is not marginal:
+comparing index membership in 2016-08 against 2026-08, **175 of the 505 names
+then in the index (34.7%) are no longer in it.** Companies leave the S&P 500
+by going bankrupt, collapsing to a small-cap, or being acquired — so the names
+silently excluded are heavily skewed toward the losers. Ranking the survivors
+against each other assumes you knew in advance which firms would still exist.
+
+The same line of code carried a second, opposite bias: a company that only
+joined the index in 2024 still had its 2016–2023 history fed into the
+cross-section for those years. Stocks are *added* to the S&P 500 after a
+strong run, so their pre-inclusion history is selected on past performance
+too.
+
+`src/universe.py` fixes what can be fixed. It reconstructs membership as of
+any past date from the Wikipedia page's own **revision history** — free, no
+API key, and reproducible, since each answer is pinned to a specific revision
+id — so a stock is only ranked on dates it was genuinely an index member, and
+the names that later *left* the index are pulled too.
+
+**Measured on 5 years (`python -m scripts.measure_survivorship_bias
+--period 5y`), holding model, features, and portfolio construction fixed and
+changing only the universe:**
+
+| Confirmation-set metric | Survivorship-biased | Point-in-time | Inflation |
+|---|---|---|---|
+| Sharpe | 1.33 | **0.58** | +0.75 |
+| Annualized return | 30.7% | **11.3%** | +19.4pp |
+| Total return | 37.5% | **13.6%** | +23.9pp |
+| Max drawdown | -19.9% | **-23.9%** | understated by 4.0pp |
+
+**The bias more than doubled the reported Sharpe.** For scale, 610 names were
+index members at some point in that 5-year window versus 503 today — 107
+companies left the index and were silently dropped from every earlier number
+in this section. The equal-weighted benchmark is inflated too (Sharpe 2.07 →
+1.80), but far less, because the *long leg* is where the survivors
+concentrate. Note the honest conclusion above is unchanged in direction and
+gets stronger: the strategy underperforms simply holding the universe in
+both arms, and by more once the bias is removed.
+
+#### What this still doesn't fix, and the trap in fixing it naively
+
+Survivorship bias **cannot be fully removed with free data**, and this repo
+does not pretend otherwise. Yahoo Finance serves no history for most delisted
+tickers — 50 of the 610 point-in-time members (8.2%) return nothing at all
+(CHK, SIVB, FRC, ANTM, CTXS, ATVI, CELG, …), and those are disproportionately
+the failures. So the bias is **bounded and reported** rather than eliminated:
+`universe.coverage_report()` prints what fraction of the true universe is
+missing, and that caveat belongs next to any Sharpe computed here.
+
+Fixing this naively is worse than not fixing it, because **exchanges recycle
+ticker symbols**. `BBBY` was Bed Bath & Beyond, an index member until 2022; it
+went bankrupt in 2023, and Yahoo now serves ~30 rows for that symbol starting
+2026-07-17 belonging to an unrelated company. Simply widening the download
+list to include removed names silently injects one company's prices under
+another company's identity — a data-integrity failure, not just a bias.
+`universe.drop_recycled_tickers()` catches it by requiring a ticker's price
+history to actually overlap its membership window (6 dropped in the 5-year
+run: FB, FERG, INFO, RDDT, SBNY, VMRK).
+
+### Also fixed: label leakage at the walk-forward fold boundary
+
+`model.py` claimed "no ticker ever leaks future dates into an earlier fold's
+training set." That claim was false at the boundary. Training used
+`df[df.date <= train_end]`, but every label here is built from the **next**
+day's close — so a training row dated exactly `train_end` had a label
+determined by the first day of the test fold. The model was trained on the
+answer to the first question it was about to be asked.
+
+`PURGE_DAYS` (default 1, matching the 1-day label horizon) now drops the last
+training day before each test fold — the standard purging treatment from
+López de Prado, *Advances in Financial Machine Learning*, ch. 7. The effect on
+headline numbers is small (one day × universe size, out of hundreds of
+thousands of training rows); the point is that the correctness claim the
+module makes is now actually true. `tests/test_purging.py` pins it down.
+
+### Also fixed: the benchmark was scored over a different date range
+
+`long_short_backtest._evaluate_daily` compared the strategy against an
+equal-weighted universe benchmark, but computed the strategy's returns over
+only the days it actually traded while computing the benchmark over **every**
+prediction date. Both portfolio builders skip days (too few names to fill a
+decile, an empty leg after hysteresis), so the two series covered different
+holding periods — and `performance_metrics` annualizes by dividing by each
+series' own `n_days`. The benchmark is now restricted to the strategy's traded
+dates, which is what makes "does the ranking beat just holding the universe"
+a real comparison. The reported `n_benchmark_days` makes the alignment visible.
+
 ### Next steps (flagged, not yet attempted)
 
 Two evidence-backed levers were identified but not built, given the time

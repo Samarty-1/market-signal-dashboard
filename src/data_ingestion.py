@@ -72,11 +72,23 @@ def fetch_prices(
 
 
 def fetch_sp500_tickers() -> list[str]:
-    """S&P 500 constituent list from Wikipedia (needs a browser User-Agent,
-    Wikipedia 403s the default urllib one). Cross-sectional ML asset-pricing
-    edges come from ranking hundreds of stocks against each other (see
-    README) -- this is what widens the universe from DEFAULT_TICKERS'
-    ~30 names to that scale, still using only free data.
+    """S&P 500 constituent list from Wikipedia, AS IT LOOKS TODAY.
+
+    WARNING -- survivorship bias. Pairing this with years of price history
+    silently excludes every company that was in the index earlier and has
+    since gone bankrupt, collapsed, or been acquired: 34.7% of the 2016 index
+    is no longer in it. Measured on a 5-year window, that inflated the
+    cross-sectional long-short Sharpe from 0.58 to 1.33. It also lets a stock
+    that joined the index in 2024 contribute its 2016-2023 history, which is
+    the same bias pointing the other way.
+
+    Use :func:`src.universe.membership_history` for any backtest over a
+    historical window; it reconstructs point-in-time membership from the
+    Wikipedia page's revision history. This function is fine for a
+    *current-day* screen, and is kept so the size of the bias stays
+    measurable (see scripts/measure_survivorship_bias.py).
+
+    (Needs a browser User-Agent; Wikipedia 403s the default urllib one.)
     """
     url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})

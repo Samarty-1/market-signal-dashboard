@@ -21,6 +21,7 @@ import time
 import pandas as pd
 
 from src import model as model_mod
+from src import universe as universe_mod
 from src.data_ingestion import fetch_sp500_tickers, fetch_universe_prices
 from src.features import build_feature_dataset
 from src.long_short_backtest import evaluate_hysteresis_long_short, evaluate_long_short
@@ -45,20 +46,75 @@ def main() -> None:
     parser.add_argument("--model", default="xgboost", choices=list(model_mod.CANDIDATE_MODELS))
     parser.add_argument("--n-folds", type=int, default=10)
     parser.add_argument("--cost-bps", type=float, default=10.0)
+    parser.add_argument(
+        "--survivorship",
+        choices=["point-in-time", "current-members"],
+        default="point-in-time",
+        help=(
+            "point-in-time (default): reconstruct historical index membership so a "
+            "stock is only ranked on dates it was actually a member, and pull the "
+            "names that later LEFT the index too. current-members: the old, "
+            "survivorship-biased behaviour -- today's members only. Kept as an "
+            "option purely so the size of the bias can be measured, not because "
+            "it is ever the right choice."
+        ),
+    )
     args = parser.parse_args()
 
-    print(f"Fetching {args.universe} tickers...")
-    tickers = fetch_sp500_tickers() if args.universe == "sp500" else _fetch_smallcap_tickers()
-    print(f"  {len(tickers)} tickers")
+    membership = None
+    if args.universe == "sp500" and args.survivorship == "point-in-time":
+        # Look-back window for membership must match the price window, so
+        # "10y" of prices is ranked against 10y of membership rather than
+        # against today's list. See src/universe.py for why this matters and
+        # what it can't fix.
+        years = int(args.period.rstrip("y") or 10) if args.period.endswith("y") else 10
+        start = pd.Timestamp.today() - pd.DateOffset(years=years)
+        print(f"Reconstructing point-in-time S&P 500 membership from {start.date()} (quarterly samples)...")
+        t0 = time.time()
+        membership = universe_mod.membership_history(start)
+        tickers = universe_mod.ever_members(membership)
+        current = set(universe_mod.members_asof(pd.Timestamp.today()))
+        print(
+            f"  {len(tickers)} names were index members at some point "
+            f"({len(set(tickers) - current)} of them have since left the index) in {time.time() - t0:.1f}s"
+        )
+    else:
+        print(f"Fetching {args.universe} tickers (current members only -- survivorship-biased)...")
+        tickers = fetch_sp500_tickers() if args.universe == "sp500" else _fetch_smallcap_tickers()
+        print(f"  {len(tickers)} tickers")
 
     print(f"Fetching {args.period} of price history...")
     t0 = time.time()
     prices = fetch_universe_prices(tickers, period=args.period)
     print(f"  {len(prices)} rows in {time.time() - t0:.1f}s")
 
+    if membership is not None:
+        coverage = universe_mod.coverage_report(membership, prices)
+        print(
+            f"  Price coverage of the true universe: {coverage['n_with_price_data']}/"
+            f"{coverage['n_ever_members']} names "
+            f"({coverage['pct_missing']}% MISSING -- residual survivorship bias, see src/universe.py)"
+        )
+
+        prices, recycled = universe_mod.drop_recycled_tickers(prices, membership)
+        if recycled:
+            print(
+                f"  Dropped {len(recycled)} recycled ticker(s) whose price history doesn't overlap "
+                f"their index membership: {', '.join(recycled[:12])}"
+                + (" ..." if len(recycled) > 12 else "")
+            )
+
     print("Building features...")
     feats = build_feature_dataset(prices)
     print(f"  {len(feats)} rows, {feats['ticker'].nunique()} tickers, {feats['date'].min().date()} to {feats['date'].max().date()}")
+
+    if membership is not None:
+        before = len(feats)
+        feats = universe_mod.apply_point_in_time_membership(feats, membership)
+        print(
+            f"  Point-in-time membership mask: {before} -> {len(feats)} rows "
+            f"({100 * (before - len(feats)) / max(before, 1):.1f}% dropped as not-yet/no-longer index members)"
+        )
 
     print(f"Walk-forward predicting ({args.model}, {args.n_folds} folds)...")
     t0 = time.time()

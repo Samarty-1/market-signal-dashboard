@@ -30,6 +30,19 @@ from src.features import FEATURE_COLUMNS, build_feature_dataset
 
 LABEL_COLUMN = "label_next_day_up"
 N_FOLDS = 5
+# Trading days to drop from the END of each training fold before the test fold
+# starts. Every label here is built from the NEXT day's close
+# (features.add_features_for_ticker), so a training row dated exactly at the
+# fold boundary has a label determined by the first day of the test period --
+# the model is trained on the answer to the first question it's about to be
+# asked. One day of label horizon means one day of purge; the standard
+# treatment (Lopez de Prado, "Advances in Financial Machine Learning", ch. 7)
+# is to purge training observations whose label window overlaps the test set.
+# The effect on headline numbers is small -- ~1 day x universe size out of
+# thousands of training rows -- but the module docstring claims no future ever
+# leaks into an earlier fold's training set, and without this that claim is
+# false.
+PURGE_DAYS = 1
 
 CANDIDATE_MODELS = {
     "logistic_regression": LogisticRegression(max_iter=1000, class_weight="balanced"),
@@ -55,6 +68,30 @@ def _build_pipeline(estimator) -> Pipeline:
     return Pipeline([("preprocess", preprocess), ("model", estimator)])
 
 
+def _purged_train_test(
+    df: pd.DataFrame, train_end: pd.Timestamp, test_end: pd.Timestamp, purge_days: int = PURGE_DAYS
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Split into train/test at `train_end`, purging the last `purge_days`
+    trading days of the training set (see PURGE_DAYS).
+
+    Purging is done on *trading* days present in the data, not calendar days,
+    so a boundary landing on a Friday drops Friday rather than a weekend that
+    holds no observations anyway.
+    """
+    train = df[df["date"] <= train_end]
+    test = df[(df["date"] > train_end) & (df["date"] <= test_end)]
+
+    if purge_days > 0 and not train.empty:
+        train_dates = np.sort(train["date"].unique())
+        if len(train_dates) > purge_days:
+            purge_from = train_dates[-purge_days]
+            train = train[train["date"] < purge_from]
+        else:
+            train = train.iloc[0:0]
+
+    return train, test
+
+
 def _fold_cutoffs(dates: pd.Series, n_folds: int = N_FOLDS) -> list[pd.Timestamp]:
     unique_dates = np.sort(dates.unique())
     # Skip the first ~40% as a minimum training window before the first fold.
@@ -74,8 +111,7 @@ def walk_forward_predictions(
     predictions = []
     for fold_idx in range(len(cutoffs) - 1):
         train_end, test_end = cutoffs[fold_idx], cutoffs[fold_idx + 1]
-        train = df[df["date"] <= train_end]
-        test = df[(df["date"] > train_end) & (df["date"] <= test_end)]
+        train, test = _purged_train_test(df, train_end, test_end)
         if train.empty or test.empty:
             continue
 
@@ -108,8 +144,7 @@ def walk_forward_evaluate(
     fold_results = []
     for fold_idx in range(len(cutoffs) - 1):
         train_end, test_end = cutoffs[fold_idx], cutoffs[fold_idx + 1]
-        train = df[df["date"] <= train_end]
-        test = df[(df["date"] > train_end) & (df["date"] <= test_end)]
+        train, test = _purged_train_test(df, train_end, test_end)
         if train.empty or test.empty or test[label_column].nunique() < 2:
             continue
 
