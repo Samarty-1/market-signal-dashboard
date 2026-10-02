@@ -1,0 +1,102 @@
+{
+  "DEV": {
+    "REPO baseline (h1, hard decile, daily)": {
+      "n_days": 1092,
+      "gross_sharpe": 1.029,
+      "net_sharpe": -1.766,
+      "gross_ann_ret": 0.1131,
+      "net_ann_ret": -0.1944,
+      "ann_vol": 0.1101,
+      "max_dd": -0.5817,
+      "turnover_daily": 1.2205,
+      "cost_bps_day": 12.2,
+      "gross_bps_day": 4.49
+    },
+    "FIXED full (blend, rank, hl42, band)": {
+      "n_days": 972,
+      "gross_sharpe": 0.91,
+      "net_sharpe": 0.861,
+      "gross_ann_ret": 0.0641,
+      "net_ann_ret": 0.0607,
+      "ann_vol": 0.0705,
+      "max_dd": -0.0653,
+      "turnover_daily": 0.0137,
+      "cost_bps_day": 0.14,
+      "gross_bps_day": 2.55
+    },
+    "  ...static/tilt component": {
+      "n_days": 972,
+      "gross_sharpe": 0.884,
+      "net_sharpe": 0.872,
+      "gross_ann_ret": 0.0381,
+      "net_ann_ret": 0.0376,
+      "ann_vol": 0.0431,
+      "max_dd": -0.0415,
+      "turnover_daily": 0.0019,
+      "cost_bps_day": 0.02,
+      "gross_bps_day": 1.51
+    },
+    "  ...timing component": {
+      "n_days": 972,
+      "gross_sharpe": 0.667,
+      "net_sharpe": 0.587,
+      "gross_ann_ret": 0.0465,
+      "net_ann_ret": 0.0409,
+      "ann_vol": 0.0696,
+      "max_dd": -0.0811,
+      "turnover_daily": 0.0221,
+      "cost_bps_day": 0.22,
+      "gross_bps_day": 1.84
+    }
+  },
+  "CONFIRM": {
+    "REPO baseline (h1, hard decile, daily)": {
+      "n_days": 915,
+      "gross_sharpe": 1.227,
+      "net_sharpe": -1.979,
+      "gross_ann_ret": 0.1149,
+      "net_ann_ret": -0.1858,
+      "ann_vol": 0.0939,
+      "max_dd": -0.5309,
+      "turnover_daily": 1.1932,
+      "cost_bps_day": 11.93,
+      "gross_bps_day": 4.56
+    },
+    "FIXED full (blend, rank, hl42, band)": {
+      "n_days": 915,
+      "gross_sharpe": 1.698,
+      "net_sharpe": 1.633,
+      "gross_ann_ret": 0.0836,
+      "net_ann_ret": 0.0804,
+      "ann_vol": 0.0492,
+      "max_dd": -0.0501,
+      "turnover_daily": 0.0128,
+      "cost_bps_day": 0.13,
+      "gross_bps_day": 3.32
+    },
+    "  ...static/tilt component": {
+      "n_days": 915,
+      "gross_sharpe": 1.503,
+      "net_sharpe": 1.501,
+      "gross_ann_ret": 0.0815,
+      "net_ann_ret": 0.0814,
+      "ann_vol": 0.0542,
+      "max_dd": -0.0713,
+      "turnover_daily": 0.0003,
+      "cost_bps_day": 0.0,
+      "gross_bps_day": 3.23
+    },
+    "  ...timing component": {
+      "n_days": 915,
+      "gross_sharpe": 1.043,
+      "net_sharpe": 0.918,
+      "gross_ann_ret": 0.0351,
+      "net_ann_ret": 0.0309,
+      "ann_vol": 0.0336,
+      "max_dd": -0.0368,
+      "turnover_daily": 0.0167,
+      "cost_bps_day": 0.17,
+      "gross_bps_day": 1.39
+    }
+  }
+}

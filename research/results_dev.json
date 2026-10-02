@@ -1,0 +1,114 @@
+{
+  "0": {
+    "label": "0 baseline (repo: raw+ticker,bin)",
+    "n_days": 1092,
+    "mean_ic": 0.02145,
+    "icir_ann": 2.332,
+    "t_stat": 4.85,
+    "hit_rate": 0.5788,
+    "q5_spread": {
+      "n_days": 1092,
+      "ann_return": 0.2204,
+      "ann_vol": 0.1332,
+      "sharpe": 1.655,
+      "max_dd": -0.1161
+    },
+    "secs": 24.5
+  },
+  "1": {
+    "label": "1 + purge/embargo",
+    "n_days": 1092,
+    "mean_ic": 0.02092,
+    "icir_ann": 2.226,
+    "t_stat": 4.63,
+    "hit_rate": 0.5641,
+    "q5_spread": {
+      "n_days": 1092,
+      "ann_return": 0.2027,
+      "ann_vol": 0.1416,
+      "sharpe": 1.431,
+      "max_dd": -0.1125
+    },
+    "secs": 25.1
+  },
+  "2": {
+    "label": "2 + drop ticker identity",
+    "n_days": 1092,
+    "mean_ic": 0.01869,
+    "icir_ann": 1.994,
+    "t_stat": 4.15,
+    "hit_rate": 0.5641,
+    "q5_spread": {
+      "n_days": 1092,
+      "ann_return": 0.1965,
+      "ann_vol": 0.1393,
+      "sharpe": 1.411,
+      "max_dd": -0.125
+    },
+    "secs": 24.4
+  },
+  "3": {
+    "label": "3 + cross-sectional features",
+    "n_days": 1092,
+    "mean_ic": 0.01643,
+    "icir_ann": 1.632,
+    "t_stat": 3.4,
+    "hit_rate": 0.5403,
+    "q5_spread": {
+      "n_days": 1092,
+      "ann_return": 0.1238,
+      "ann_vol": 0.1386,
+      "sharpe": 0.894,
+      "max_dd": -0.1594
+    },
+    "secs": 24.7
+  },
+  "4": {
+    "label": "4 + rank target (regression)",
+    "n_days": 1092,
+    "mean_ic": 0.01645,
+    "icir_ann": 1.631,
+    "t_stat": 3.4,
+    "hit_rate": 0.5385,
+    "q5_spread": {
+      "n_days": 1092,
+      "ann_return": 0.139,
+      "ann_vol": 0.1399,
+      "sharpe": 0.994,
+      "max_dd": -0.173
+    },
+    "secs": 17.6
+  },
+  "5": {
+    "label": "5 + low-SNR regularisation",
+    "n_days": 1092,
+    "mean_ic": 0.01764,
+    "icir_ann": 1.553,
+    "t_stat": 3.23,
+    "hit_rate": 0.5366,
+    "q5_spread": {
+      "n_days": 1092,
+      "ann_return": 0.1361,
+      "ann_vol": 0.1639,
+      "sharpe": 0.83,
+      "max_dd": -0.2291
+    },
+    "secs": 28.0
+  },
+  "6": {
+    "label": "6 + 5-seed ensemble + neutralise",
+    "n_days": 1092,
+    "mean_ic": 0.01796,
+    "icir_ann": 1.567,
+    "t_stat": 3.26,
+    "hit_rate": 0.5293,
+    "q5_spread": {
+      "n_days": 1092,
+      "ann_return": 0.1448,
+      "ann_vol": 0.1651,
+      "sharpe": 0.877,
+      "max_dd": -0.2268
+    },
+    "secs": 132.7
+  }
+}

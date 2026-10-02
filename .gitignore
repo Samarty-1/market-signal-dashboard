@@ -18,3 +18,7 @@ data/*.csv
 
 # Ad-hoc run logs from scripts/ (the committed *_comparison.json holds the result)
 data/*.log
+
+# Cached price panel + walk-forward predictions (regenerate with fetch_cache.py
+# and the research modules) — hundreds of MB, and stale the moment prices move.
+cache/
