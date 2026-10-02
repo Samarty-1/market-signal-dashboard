@@ -70,11 +70,23 @@ def load_sentiment_model() -> Pipeline:
 
 
 def fetch_live_headlines(ticker: str, limit: int = 10) -> list[str]:
-    """Pull the most recent news headlines for a ticker from Yahoo Finance."""
+    """Pull the most recent news headlines for a ticker from Yahoo Finance.
+
+    `Ticker.news` has returned an empty list for every ticker since late August
+    2026 (the sentiment panel went blank without any error). `yf.Search` still
+    serves news, so it is the fallback -- filtered to stories Yahoo tags with this
+    ticker, since a search for "KO" also returns loosely related market stories.
+    """
     try:
         news = yf.Ticker(ticker).news or []
     except Exception:
-        return []
+        news = []
+    if not news:
+        try:
+            found = yf.Search(ticker, news_count=limit * 2).news or []
+        except Exception:
+            found = []
+        news = [n for n in found if ticker in (n.get("relatedTickers") or [])]
     headlines = []
     for item in news[:limit]:
         content = item.get("content", item)

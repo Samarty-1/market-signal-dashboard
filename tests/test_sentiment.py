@@ -77,6 +77,31 @@ def test_fetch_live_headlines_returns_empty_on_error(monkeypatch):
         def news(self):
             raise RuntimeError("network error")
 
+    class _BrokenSearch:
+        def __init__(self, *a, **k):
+            raise RuntimeError("network error")
+
     monkeypatch.setattr(sentiment.yf, "Ticker", lambda ticker: _BrokenTicker())
+    monkeypatch.setattr(sentiment.yf, "Search", _BrokenSearch)
 
     assert sentiment.fetch_live_headlines("AAPL") == []
+
+
+def test_empty_ticker_news_falls_back_to_search_filtered_to_the_ticker(monkeypatch):
+    """Ticker.news went silently empty in Aug 2026; Search still works but also
+    returns stories about other companies, which must not be scored as AAPL's."""
+    class _EmptyTicker:
+        news = []
+
+    class _FakeSearch:
+        def __init__(self, query, news_count=8):
+            self.news = [
+                {"title": "Apple story", "relatedTickers": ["AAPL"]},
+                {"title": "Unrelated story", "relatedTickers": ["MSFT"]},
+                {"title": "Untagged story"},
+            ]
+
+    monkeypatch.setattr(sentiment.yf, "Ticker", lambda ticker: _EmptyTicker())
+    monkeypatch.setattr(sentiment.yf, "Search", _FakeSearch)
+
+    assert sentiment.fetch_live_headlines("AAPL") == ["Apple story"]

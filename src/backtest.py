@@ -15,9 +15,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.data_ingestion import fetch_prices, fetch_vix
+from src import data_quality, registry
+from src.data_ingestion import DEFAULT_TICKERS, fetch_prices, fetch_vix
 from src.features import build_feature_dataset
-from src.model import train_and_select_best, walk_forward_predictions
+from src.model import CANDIDATE_MODELS, train_and_select_best, walk_forward_predictions
 
 TRADING_DAYS_PER_YEAR = 252
 
@@ -177,12 +178,33 @@ def backtest_portfolio(
     }
 
 
+def registered_model_name(models_dir: Path) -> str | None:
+    """The model family of the latest registered version, or None if there is none."""
+    try:
+        _, metrics = registry.load_latest(models_dir)
+    except (FileNotFoundError, KeyError, TypeError, ValueError):
+        return None
+    name = (metrics or {}).get("best_model")
+    return name if name in CANDIDATE_MODELS else None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tickers", default=None, help="Comma-separated tickers")
     parser.add_argument("--threshold", type=float, default=0.5, help="Long if predicted P(up) exceeds this")
     parser.add_argument("--position-sizing", choices=["binary", "confidence"], default="binary")
-    parser.add_argument("--cost-bps", type=float, default=0.0, help="Per-unit-of-turnover transaction cost, in basis points")
+    parser.add_argument(
+        "--cost-bps", type=float, default=5.0,
+        help="Per-unit-of-turnover transaction cost, in basis points. Was 0, so the published "
+             "dashboard backtest was costless; 5bp is a conservative all-in figure for liquid US "
+             "large caps and ETFs. Pass 0 to see the gross number.",
+    )
+    parser.add_argument(
+        "--prices", default=None,
+        help="Read this cleaned price snapshot (written by src.model) instead of re-downloading, "
+             "so the backtest scores exactly the data the registered model was trained on.",
+    )
+    parser.add_argument("--models-dir", default="models")
     parser.add_argument(
         "--regime-filter", action="store_true",
         help="Only trade when the current VIX regime has shown positive historical edge",
@@ -192,10 +214,23 @@ def main() -> None:
     args = parser.parse_args()
 
     tickers = [t.strip().upper() for t in args.tickers.split(",")] if args.tickers else None
-    prices = fetch_prices(tickers) if tickers else fetch_prices()
+    if args.prices:
+        prices = pd.read_csv(args.prices, parse_dates=["date"])
+        if tickers:
+            prices = prices[prices["ticker"].isin(tickers)]
+    else:
+        raw = fetch_prices(tickers) if tickers else fetch_prices()
+        prices, quality = data_quality.validate_live(raw, expected_tickers=tickers or DEFAULT_TICKERS)
+        print(quality.summary())
+        data_quality.require_ok(quality)
     df = build_feature_dataset(prices)
 
-    best_name, _, _ = train_and_select_best(df)
+    # Backtest the model family that was actually registered, rather than
+    # re-running the whole four-model selection on a separate download -- which
+    # could (and on noisy days did) pick a different winner than the one deployed.
+    best_name = registered_model_name(Path(args.models_dir))
+    if best_name is None:
+        best_name, _, _ = train_and_select_best(df)
     predictions = walk_forward_predictions(df, best_name)
     vix = fetch_vix() if args.regime_filter else None
 

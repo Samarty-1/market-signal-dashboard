@@ -80,7 +80,11 @@ def add_features_for_ticker(group: pd.DataFrame) -> pd.DataFrame:
 
     group["volatility_10d"] = group["return_1d"].rolling(10).std()
     group["volatility_20d"] = group["return_1d"].rolling(20).std()
-    group["volume_change"] = group["volume"].pct_change(1)
+    # The day after a zero-volume bar, pct_change is inf, and one inf makes
+    # StandardScaler reject the whole training matrix. Today that row happens to
+    # be dropped anyway because amihud_illiquidity is NaN there too -- an
+    # accident of a different feature, not a guarantee. NaN makes it explicit.
+    group["volume_change"] = group["volume"].pct_change(1).replace([np.inf, -np.inf], np.nan)
 
     # Momentum family (all causal -- pct_change/shift only look backward)
     group["mom_21d"] = close.pct_change(21)

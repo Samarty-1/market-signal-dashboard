@@ -24,8 +24,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from xgboost import XGBClassifier
 
-from src import registry
-from src.data_ingestion import fetch_prices
+from src import data_quality, registry
+from src.data_ingestion import DEFAULT_PERIOD, DEFAULT_TICKERS, fetch_prices
 from src.features import FEATURE_COLUMNS, build_feature_dataset
 
 LABEL_COLUMN = "label_next_day_up"
@@ -223,13 +223,24 @@ def feature_importance(best_name: str, pipeline: Pipeline) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tickers", default=None, help="Comma-separated tickers (default: data_ingestion defaults)")
-    parser.add_argument("--period", default="2y")
+    parser.add_argument("--period", default=DEFAULT_PERIOD)
     parser.add_argument("--models-dir", default="models", help="Root directory for the model registry")
     parser.add_argument("--data-out", default="data/prices.csv")
     args = parser.parse_args()
 
-    tickers = [t.strip().upper() for t in args.tickers.split(",")] if args.tickers else None
-    prices = fetch_prices(tickers) if tickers else fetch_prices()
+    tickers = [t.strip().upper() for t in args.tickers.split(",")] if args.tickers else DEFAULT_TICKERS
+    # --period used to be parsed and then ignored (fetch_prices fell back to its own default).
+    raw = fetch_prices(tickers, period=args.period)
+
+    # Gate: nothing trains on data that failed validation. The report is written
+    # either way so a failed run still leaves a record of why.
+    prices, quality = data_quality.validate_live(raw, expected_tickers=tickers)
+    quality.write()
+    print(quality.summary())
+    data_quality.require_ok(quality)
+
+    # The cleaned snapshot is what the backtest reads too (python -m src.backtest
+    # --prices data/prices.csv), so training and backtest see identical data.
     Path(args.data_out).parent.mkdir(parents=True, exist_ok=True)
     prices.to_csv(args.data_out, index=False)
 

@@ -30,7 +30,10 @@ DEFAULT_TICKERS = [
     # Broad ETFs
     "SPY", "QQQ", "DIA", "IWM",
 ]
-DEFAULT_PERIOD = "2y"
+# 5 years, not 2: the 12-1 momentum feature needs 252 days of warm-up and the first
+# 40% of dates are training-only, so 2y left ~148 out-of-sample days -- too few to
+# say anything about a backtest.
+DEFAULT_PERIOD = "5y"
 DEFAULT_INTERVAL = "1d"
 VIX_TICKER = "^VIX"
 
@@ -46,7 +49,13 @@ def fetch_prices(
     """
     frames = []
     for ticker in tickers:
-        history = yf.Ticker(ticker).history(period=period, interval=interval)
+        try:
+            history = yf.Ticker(ticker).history(period=period, interval=interval)
+        except Exception as exc:  # noqa: BLE001 -- one bad symbol must not sink the universe
+            print(f"  {ticker}: fetch failed ({type(exc).__name__}: {exc})")
+            continue
+        # An empty ticker is skipped here and reported by src.data_quality as
+        # missing -- never silently, since the universe shrinking is a finding.
         if history.empty:
             continue
         history = history.reset_index()

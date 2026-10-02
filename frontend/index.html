@@ -130,6 +130,7 @@
           <div><b style="color:var(--color-text);opacity:1">Last trained:</b> {{ trainedAt }} UTC</div>
           <div><b style="color:var(--color-text);opacity:1">Training rows:</b> {{ trainingRows }}</div>
           <div><b style="color:var(--color-text);opacity:1">Registry version:</b> {{ registryVersion }}</div>
+          <div><b style="color:var(--color-text);opacity:1">Backtest cost:</b> {{ costLabel }} per switch</div>
         </div>
 
         <div class="hr"></div>
@@ -520,13 +521,16 @@ function displayModelName(key) {
 }
 
 // Binary long/flat backtest on the model's out-of-sample predictions — matches
-// src/backtest.py's simplest mode (position sizing / transaction costs / the
-// VIX regime filter live server-side; this client-side chart mirrors the
-// baseline case so the comp stays a plain static page with no backend).
-function computeBacktest(rows, threshold) {
+// src/backtest.py's binary mode, INCLUDING its transaction cost: every switch
+// between long and flat pays costBps (exported from reports/backtest_metrics.json).
+// Position sizing and the VIX regime filter stay server-side.
+function computeBacktest(rows, threshold, costBps) {
+  const cost = (costBps || 0) / 1e4;
+  let prev = 0;
   const scored = rows.filter(function (r) { return r.nextDayReturn !== null; }).map(function (r) {
     const signal = r.probaUp > threshold ? 1 : 0;
-    return Object.assign({}, r, { signal: signal, stratReturn: signal * r.nextDayReturn, bhReturn: r.nextDayReturn });
+    const traded = Math.abs(signal - prev); prev = signal;
+    return Object.assign({}, r, { signal: signal, stratReturn: signal * r.nextDayReturn - traded * cost, bhReturn: r.nextDayReturn });
   });
   const perf = function (key) {
     const rets = scored.map(function (r) { return r[key]; });
@@ -638,6 +642,7 @@ class Component extends DCLogic {
             ready: true, loadError: null,
             tickers: tickers, seriesCache: seriesCache, live: data.live,
             modelMetrics: data.modelMetrics, generatedAtUtc: data.generatedAtUtc,
+            costBps: data.backtestCostBps || 0,
             ticker: keepTicker ? st.ticker : firstTicker,
             brushStart: 0, brushEnd: Math.max(0, len - 1),
           };
@@ -712,7 +717,7 @@ class Component extends DCLogic {
 
     const rows = s.seriesCache[s.ticker] || [];
     const N_DAYS = rows.length;
-    const backtestFull = computeBacktest(rows, s.threshold);
+    const backtestFull = computeBacktest(rows, s.threshold, s.costBps);
     const roc = computeRoc(rows);
     const bestModelKey = s.modelMetrics.bestModel;
     const bestModelComparison = s.modelMetrics.comparison[bestModelKey] || { meanRocAuc: 0 };
@@ -1061,6 +1066,7 @@ class Component extends DCLogic {
       trainedAt: s.modelMetrics.trainedAtUtc ? s.modelMetrics.trainedAtUtc.slice(0, 19) : '—',
       trainingRows: s.modelMetrics.nRows,
       registryVersion: s.modelMetrics.registryVersion || '—',
+      costLabel: (s.costBps || 0).toFixed(1) + ' bp',
       generatedAtLabel: s.generatedAtUtc ? s.generatedAtUtc.slice(0, 19) + ' UTC' : '—',
       exportCSV: function () {
         const header = 'date,close,proba_up,signal,next_day_return\n';
@@ -1182,6 +1188,51 @@ class Component extends DCLogic {
       border:1px solid color-mix(in srgb, #e9e9ed 16%, transparent);border-radius:8px;padding:8px 14px;cursor:pointer;margin-bottom:16px;">
       &larr; Back to dashboard
     </button>
+<section id="data-quality-panel" style="max-width:1100px;margin:0 auto 24px;font-family:'Inter',system-ui,sans-serif;color:#e9e9ed;">
+  <div style="background:#232532;border:1px solid color-mix(in srgb, #e9e9ed 16%, transparent);border-radius:12px;padding:20px 24px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;">
+      <h2 style="margin:0;font-size:18px;font-weight:500;">Data quality gate</h2>
+      <span id="dq-status" style="font-size:13px;"></span>
+    </div>
+    <p style="margin:4px 0 12px;font-size:13px;color:#9397ab;">
+      Every retrain validates the raw Yahoo Finance pull before training (src/data_quality.py). Unusable rows are
+      removed and counted; suspicious-but-possibly-real rows are kept and flagged; a stale feed or a missing
+      universe stops the run before anything is published.
+    </p>
+    <div id="dq-body"><p style="color:#75798c;font-size:13px;">Loading&hellip;</p></div>
+  </div>
+</section>
+<script>
+(function () {
+  function esc(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  fetch('./data/dashboard_data.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      const q = data.dataQuality;
+      const body = document.getElementById('dq-body');
+      const status = document.getElementById('dq-status');
+      if (!q) { body.innerHTML = '<p style="color:#75798c;font-size:13px;">No data-quality report in this export yet.</p>'; return; }
+      status.textContent = q.ok ? 'PASSED' : 'FAILED';
+      status.style.color = q.ok ? '#7fd99a' : '#e08a8a';
+      let html = '<div style="font-size:13px;color:#cfd3e5;margin-bottom:8px;">' + q.rows_out + ' / ' + q.rows_in +
+        ' rows kept &middot; ' + q.tickers_received + ' / ' + q.tickers_requested + ' tickers &middot; ' +
+        esc(q.first_date) + ' &rarr; ' + esc(q.last_date) + '</div>';
+      const removed = Object.keys(q.removed || {}).filter(function (k) { return q.removed[k] > 0; });
+      html += '<div style="font-size:13px;color:#9397ab;">Removed: ' + (removed.length ? removed.map(function (k) {
+        return esc(k) + ' (' + q.removed[k] + ')'; }).join(', ') : 'nothing') + '</div>';
+      (q.errors || []).forEach(function (e) { html += '<div style="font-size:13px;color:#e08a8a;">Error: ' + esc(e) + '</div>'; });
+      (q.warnings || []).forEach(function (w) { html += '<div style="font-size:13px;color:#e0c48a;">Warning: ' + esc(w) + '</div>'; });
+      body.innerHTML = html;
+    })
+    .catch(function () {
+      document.getElementById('dq-body').innerHTML = '<p style="color:#e08a8a;font-size:13px;">Could not load dashboard_data.json.</p>';
+    });
+})();
+</script>
 <section id="cross-sectional-panel" style="max-width:1100px;margin:0 auto 24px;font-family:'Inter',system-ui,sans-serif;color:#e9e9ed;">
   <div style="background:#232532;border:1px solid color-mix(in srgb, #e9e9ed 16%, transparent);border-radius:12px;padding:20px 24px;">
     <h2 style="margin:0 0 4px;font-size:18px;font-weight:500;">Baseline vs. cross-sectional target</h2>

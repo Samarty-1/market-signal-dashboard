@@ -28,6 +28,8 @@ from src.features import FEATURE_COLUMNS, build_feature_dataset
 ROOT = Path(__file__).parent.parent
 MODELS_DIR = ROOT / "models"
 BACKTEST_PREDICTIONS_PATH = ROOT / "reports" / "backtest_predictions.csv"
+BACKTEST_METRICS_PATH = ROOT / "reports" / "backtest_metrics.json"
+DATA_QUALITY_PATH = ROOT / "reports" / "data_quality.json"
 OUT_PATH = ROOT / "frontend" / "data" / "dashboard_data.json"
 
 DISPLAY_NAMES = {
@@ -139,6 +141,10 @@ def _sentiment_snapshot(tickers: list[str]) -> dict:
     return {"perTicker": per_ticker, "classifierMetrics": model_metrics}
 
 
+def _json_or_none(path: Path):
+    return json.loads(path.read_text()) if path.exists() else None
+
+
 def main() -> None:
     if not BACKTEST_PREDICTIONS_PATH.exists():
         raise FileNotFoundError(f"{BACKTEST_PREDICTIONS_PATH} not found — run `python -m src.backtest` first")
@@ -154,6 +160,10 @@ def main() -> None:
         "live": _live_snapshot(model, tickers),
         "sentiment": _sentiment_snapshot(tickers),
         "crossSectional": _cross_sectional_snapshot(),
+        "dataQuality": _json_or_none(DATA_QUALITY_PATH),
+        # The dashboard's client-side backtest charges the same cost as the
+        # published one, so the two never disagree about whether costs exist.
+        "backtestCostBps": (_json_or_none(BACKTEST_METRICS_PATH) or {}).get("cost_bps", 0.0),
         "modelMetrics": {
             "trainedAtUtc": metrics["trained_at_utc"],
             "nRows": metrics["n_rows"],

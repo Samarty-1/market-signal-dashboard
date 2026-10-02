@@ -14,6 +14,12 @@ on:
 permissions:
   contents: write
 
+# Two retrains racing (a manual dispatch during the scheduled run) would both push
+# and one would fail on a non-fast-forward. Queue them instead.
+concurrency:
+  group: retrain
+  cancel-in-progress: false
+
 jobs:
   retrain:
     runs-on: ubuntu-latest
@@ -40,11 +46,12 @@ jobs:
             python -m src.sentiment
           fi
 
-      - name: Retrain model
+      - name: Retrain model (fails here if the data-quality gate fails -- nothing is committed)
         run: python -m src.model
 
       - name: Run backtest
-        run: python -m src.backtest
+        # Same cleaned snapshot the model trained on; 5bp cost is the default.
+        run: python -m src.backtest --prices data/prices.csv
 
       - name: Export frontend data bundle
         run: python -m src.export_frontend_data
