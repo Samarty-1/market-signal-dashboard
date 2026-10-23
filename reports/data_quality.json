@@ -3,8 +3,8 @@
   "rows_out": 36337,
   "tickers_requested": 29,
   "tickers_received": 29,
-  "first_date": "2021-10-22",
-  "last_date": "2026-10-20",
+  "first_date": "2021-10-25",
+  "last_date": "2026-10-21",
   "removed": {
     "duplicate (date, ticker)": 0,
     "missing or non-finite price": 30,
