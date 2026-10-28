@@ -5,7 +5,7 @@ model with walk-forward validation, backtests it honestly (out-of-sample only),
 and serves everything through an interactive dashboard — with a scheduled
 GitHub Action that retrains the model daily.
 
-**Live demo:** _add your GitHub Pages / static hosting link here after deploying `frontend/`_
+**Run the dashboard locally:** it's a static site, see [Usage](#usage) below (`python -m http.server` from `frontend/`).
 
 ![Tests](https://github.com/Samarty-1/market-signal-dashboard/actions/workflows/tests.yml/badge.svg)
 ![Retrain](https://github.com/Samarty-1/market-signal-dashboard/actions/workflows/retrain.yml/badge.svg)
