@@ -438,7 +438,7 @@ and drops 31 recycled ticker symbols.
 | Book | Today's members (biased) | Point-in-time | t-stat (PIT) |
 |---|---|---|---|
 | Repo baseline (hard decile, daily) | −1.93 | −2.58 | |
-| Rank weights + EMA-42 + band (full) | **+1.73** | **+0.71** | ≈ 1.4 |
+| Rank weights + EMA-42 + band (full) | **+1.73** | **+0.71** (0.34 as designed: see Correction 3) | ≈ 1.4 |
 | …static / tilt component | +1.59 | +0.79 | |
 | …timing component (stock-selection skill) | +0.96 | **+0.43** | ≈ 0.8 |
 | Net annual return, full book | +8.8% | +2.2% | |
@@ -463,6 +463,55 @@ Honest conclusion, replacing both earlier ones: **the ranking signal is real
 (positive IC), the original construction was the reason it lost money, and the
 corrected construction is roughly break-even-to-slightly-positive with no
 statistically supported edge once the universe is point-in-time.**
+
+### Correction 3: the 0.71 rests on a filter nobody chose (2026-10-06)
+
+`research/reconcile_v2.py` found that `confirm.py`'s "full" book is not the blend
+as designed. `decompose.split()` drops any name with fewer than 120 days of
+prediction history, mostly recent index additions. That filter is worth **+0.01**
+Sharpe on DEV and **+0.37** on CONFIRM:
+
+| Point-in-time, net of 10bp | DEV | CONFIRM |
+|---|---|---|
+| Blend as designed (every member ranked) | 0.51 | **0.34** |
+| Same + the incidental 120-day mask (the published 0.71) | 0.52 | 0.71 |
+| As designed, + 50bp/yr short borrow (previously uncharged) | 0.47 | **0.27** |
+
+A choice that was invisible on DEV and doubles the result on CONFIRM is luck, not
+validation. Quote **0.27–0.34** for this book.
+
+### Pre-registered v2: three more levers, none survive
+
+[`research/PREREGISTRATION_v2.md`](research/PREREGISTRATION_v2.md) was written
+before running anything. Every decision was made on DEV, and CONFIRM was scored
+once (`python -m research.improve [--confirm]`):
+
+| Lever | DEV net Sharpe (vs 0.47) | Outcome |
+|---|---|---|
+| Beta-neutral construction | 0.30 | rejected on DEV: most of the return *was* the high-beta tilt |
+| Residual-return features (residual reversal / residual momentum, Blitz et al.) | 0.22 | rejected on DEV: IC fell 0.0144 → 0.0043 |
+| 10% volatility-target overlay | **0.68**, return 3.4% → 7.5% | adopted on DEV, **failed CONFIRM: −0.01, drawdown −19.6%** at 3.3× average leverage |
+
+An addendum then tested point-in-time GICS sectors (`research/sectors.py`, read
+from the same pinned Wikipedia revisions). Sector-neutral construction scored
+0.34 and sector-relative features 0.31, both rejected on DEV. The single-feature
+diagnostic (`research/feature_ic.py`) shows why: on these large caps over
+2018–2022, raw reversal (IC −0.024) beats its sector-relative (−0.016) and
+market-residual (−0.015) versions, and the sector's own move is a reversal signal
+(−0.023). Neutralising it hedges away part of the edge.
+
+A final addendum found the fitted model's IC (0.0144) sits *below* its own best
+raw input, so it tested an unfitted reversal composite. That composite had a 49%
+better IC (0.0215) and a *worse* book (0.19). Reversal plays out in days, while
+the only construction that survives costs holds for weeks.
+Using the reversal only to *time* the slow book's trades changed nothing (0.47 → 0.47).
+The book trades too little for execution timing to matter. **Eleven trials, none adopted.** On price/volume data the limit is the horizon gap:
+the signal lives where trading is too expensive.
+
+Vol-targeting is the instructive failure. Leverage scales whatever edge exists,
+and on DEV it looked like free Sharpe. When confirmation-period vol fell to 3%,
+the overlay levered a near-zero edge 3×. **Profit here can't come from leverage
+until the Sharpe underneath it is real.**
 
 ### Next steps (flagged, not yet attempted)
 

@@ -1,0 +1,64 @@
+{
+  "DEV": {
+    "H0 baseline + borrow": {
+      "n_days": 1067,
+      "gross_sharpe": 0.591,
+      "net_sharpe": 0.475,
+      "gross_ann_ret": 0.0424,
+      "net_ann_ret": 0.0341,
+      "ann_vol": 0.0717,
+      "max_dd": -0.0909,
+      "turnover_daily": 0.0233,
+      "cost_bps_day": 0.33,
+      "gross_bps_day": 1.68,
+      "mkt_beta": 0.106,
+      "by_year": {
+        "2018": -0.52,
+        "2019": 0.44,
+        "2020": 1.34,
+        "2021": 0.38,
+        "2022": -0.4
+      }
+    },
+    "H7a composite": {
+      "n_days": 1067,
+      "gross_sharpe": 0.3,
+      "net_sharpe": 0.186,
+      "gross_ann_ret": 0.0306,
+      "net_ann_ret": 0.019,
+      "ann_vol": 0.1021,
+      "max_dd": -0.1606,
+      "turnover_daily": 0.0365,
+      "cost_bps_day": 0.46,
+      "gross_bps_day": 1.21,
+      "mkt_beta": 0.175,
+      "by_year": {
+        "2018": -0.18,
+        "2019": 1.24,
+        "2020": -0.13,
+        "2021": 0.36,
+        "2022": 0.06
+      }
+    },
+    "H7b 50/50": {
+      "n_days": 1067,
+      "gross_sharpe": 0.426,
+      "net_sharpe": 0.32,
+      "gross_ann_ret": 0.0398,
+      "net_ann_ret": 0.0299,
+      "ann_vol": 0.0935,
+      "max_dd": -0.108,
+      "turnover_daily": 0.0296,
+      "cost_bps_day": 0.39,
+      "gross_bps_day": 1.58,
+      "mkt_beta": 0.173,
+      "by_year": {
+        "2018": -0.35,
+        "2019": 1.25,
+        "2020": 0.55,
+        "2021": 0.38,
+        "2022": -0.23
+      }
+    }
+  }
+}

@@ -86,6 +86,7 @@ def simulate(
     cost_bps: float = 10.0,
     band: float = 0.0,
     rebalance_every: int = 1,
+    borrow_bps_yr: float = 0.0,
 ) -> pd.DataFrame:
     """Walk the book forward one day at a time.
 
@@ -93,8 +94,11 @@ def simulate(
     band               : no-trade threshold as a fraction of the average
                          absolute target weight. A position is left alone until
                          it drifts more than this from its target.
+    borrow_bps_yr      : stock-borrow fee on the short leg's notional, charged
+                         daily. General-collateral S&P 500 names cost ~25-50bp/yr.
     Returns per-date: gross_return, cost, net_return, turnover.
     """
+    borrow_rate = borrow_bps_yr / 10_000.0 / 252
     dates = target_w.index
     cols = target_w.columns
     tgt = target_w.to_numpy(dtype=float)
@@ -122,8 +126,8 @@ def simulate(
             new = np.where(tradable, held, 0.0)
 
         turnover = np.abs(new - held).sum()
-        cost = turnover * cost_rate
         held = new
+        cost = turnover * cost_rate + np.clip(-held, 0.0, None).sum() * borrow_rate
 
         r = ret[i]
         gross = float(np.nansum(held * np.where(np.isnan(r), 0.0, r)))

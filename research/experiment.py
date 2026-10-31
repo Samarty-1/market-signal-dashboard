@@ -94,10 +94,11 @@ def run(
     date_end: pd.Timestamp | None = None,
     neutralize: bool = False,
     verbose: bool = False,
+    features: list[str] | None = None,
 ) -> pd.Series:
     """Returns out-of-sample predictions indexed by (date, ticker)."""
     df = panel if date_end is None else panel[panel.index.get_level_values("date") <= date_end]
-    feat_cols = [f"{prefix}{f}" for f in FEATURES]
+    feat_cols = [f"{prefix}{f}" for f in (features or FEATURES)]
 
     dates = np.sort(df.index.get_level_values("date").unique())
     date_arr = df.index.get_level_values("date")

@@ -1,0 +1,7 @@
+{
+  "decided_on": "DEV only, 2026-10-06, per research/PREREGISTRATION_v2.md",
+  "H1": false,
+  "H2": false,
+  "H3": true,
+  "compare": ["H0 baseline + borrow"]
+}
